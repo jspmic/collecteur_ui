@@ -70,7 +70,7 @@ class _InterfaceState extends State<Interface> {
                 setState(() {
                   data = ["a"];
                 });
-              }, child: Text("Exporter", style: TextStyle(color: Colors.black)), style: ElevatedButton.styleFrom(backgroundColor: Colors.white))
+              }, style: ElevatedButton.styleFrom(backgroundColor: Colors.white), child: const Text("Exporter", style: TextStyle(color: Colors.black)))
             ],
           ),
           SizedBox(height: MediaQuery.of(context).size.height/2),

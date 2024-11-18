@@ -120,3 +120,50 @@ class _StockState extends State<Stock> {
     ));
   }
 }
+
+List<DataRow> _createTransfertRows(){
+  List<Transfert> _data = List.from(collectedTransfert);
+  return _data.map((e) {
+    return DataRow(cells: [
+      DataCell(Text(e.date.toString())),
+      DataCell(Text(e.plaque.toString())),
+      DataCell(Text(e.logistic_official.toString())),
+      DataCell(Text(e.numero_mouvement.toString())),
+      DataCell(Text(e.stock_central_depart.toString())),
+      DataCell(Text(e.stock_central_retour.toString())),
+      DataCell(Text(e.photo_mvt.toString())),
+      DataCell(Text(e.type_transport.toString())),
+      DataCell(Text(e.motif.toString()))
+    ]);
+  }).toList();
+}
+
+/*void renderStockSuivants(){
+  List<Transfert> _data = List.from(collectedTransfert);
+  for (Transfert mvt in _data){
+    for
+  }
+}*/
+
+List<DataColumn> _createTransfertColumns(){
+  return [
+      DataColumn(label: Text("Date", style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(label: Text("Plaque", style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(label: Text("Logistic Official", style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(label: Text("Numero mouvement", style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(label: Text("Stock Central Depart", style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(label: Text("Stock Central Retour", style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(label: Text("Photo du mouvement", style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(label: Text("Type de transport", style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(label: Text("Motif", style: TextStyle(fontWeight: FontWeight.bold)))
+  ];
+}
+
+Widget transfertTable(){
+  return SafeArea(child: SafeArea(
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(columns: _createTransfertColumns(), rows: _createTransfertRows()),
+    ),
+  ));
+}

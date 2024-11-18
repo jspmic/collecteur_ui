@@ -1,16 +1,21 @@
 import 'package:collecteur/custom_widgets.dart';
 import 'package:collecteur/excel_fields.dart';
+import 'package:collecteur/rest.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(const Collecteur());
 }
 
+Transfert objTransfert = Transfert();
+Livraison objLivraison = Livraison();
+
 class Collecteur extends StatelessWidget {
   const Collecteur({super.key});
 
   @override
   Widget build(BuildContext context) {
+    initialize();
     return MaterialApp(
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
@@ -32,8 +37,22 @@ class Interface extends StatefulWidget {
 class _InterfaceState extends State<Interface> {
   String district = "";
   String program = "";
+  bool isLoading = false;
   String stock = "";
+  var user = TextEditingController();
   List? data;
+
+  void retrieve(String program, DateTime dateSelect) async{
+    String date = "${dateSelect.day}/${dateSelect.month}/${dateSelect.year}";
+    setState(() {
+      isLoading = true;
+    });
+    program == "Transfert" ? await getTransfertFields(date, user.text) : objLivraison;
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,38 +64,49 @@ class _InterfaceState extends State<Interface> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              DatePicker(),
-              Stock(hintText: "District", column: DISTRICT, background: background, onSelect: (value){
-                setState(() {
-                  district = value;
-                });
-              }),
-              Stock(hintText: "Stock Central", column: STOCK_CENTRAL, background: background, onSelect: (value){
-                setState(() {
-                  stock = value;
-                });
-              }),
-              Stock(hintText: "Program", column: PROGRAM, background: background, onSelect: (value){
-                setState(() {
-                  program = value;
-                });
-              }),
-              ElevatedButton(onPressed: (){
-                setState(() {
-                  data = ["a"];
-                });
-              }, style: ElevatedButton.styleFrom(backgroundColor: Colors.white), child: const Text("Exporter", style: TextStyle(color: Colors.black)))
-            ],
-          ),
-          SizedBox(height: MediaQuery.of(context).size.height/2),
-          data != null ? Text("$district - $program - $stock") : Text("Pas de données")
-        ],
-      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const DatePicker(),
+                SizedBox(
+                  width: 100,
+                  child: TextField(
+                    decoration: const InputDecoration(hintText: "Utilisateur"),
+                    controller: user,
+                  ),
+                ),
+                Stock(hintText: "Program...", column: PROGRAM, background: background, onSelect: (value){
+                  setState(() {
+                    program = value;
+                  });
+                }),
+              ],
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height/15),
+              program == "Transfert" ? SingleChildScrollView(child: transfertTable()) : const Text("Pas de donnees", style: TextStyle(color: Colors.grey)),
+            SizedBox(height: MediaQuery.of(context).size.height/2),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  isLoading ? const CircularProgressIndicator() : ElevatedButton(onPressed: () {
+                    retrieve(program, dateSelected!);
+                  },
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                      child: const Text("Exporter", style: TextStyle(color: Colors.black))),
+                            ElevatedButton(onPressed: (){
+                              setState(() {
+                                collectedTransfert = [];
+                              });
+                            },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                    child: const Text("Clear", style: TextStyle(color: Colors.black))),
+                ],
+              )
+              ]),
+      )
     );
   }
 }

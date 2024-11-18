@@ -3,22 +3,24 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Address definition
-// const String HOST = "https://jspemic.pythonanywhere.com";
-const String HOST = "http://192.168.43.81:5000";
+const String HOST = "https://jspemic.pythonanywhere.com";
+// const String HOST = "http://localhost:5000";
 
+// Object fill up
+List<Transfert> collectedTransfert = [];
 
 class Transfert{
-  late String date;
-  late String plaque;
-  late String logistic_official;
-  late String numero_mouvement;
-  late String stock_central_depart;
-  Map<String, String?> stock_central_suivants = {};
-  late String stock_central_retour;
+  String date = "";
+  String plaque = "";
+  String logistic_official = "";
+  int numero_mouvement = 0;
+  String stock_central_depart = "";
+  Map<String, dynamic> stock_central_suivants = {};
+  String stock_central_retour = "";
   String photo_mvt = "";
-  late String type_transport;
-  late String user;
-  late String? motif;
+  String type_transport = "";
+  String user = "";
+  String? motif = "";
   Transfert();
 }
 
@@ -36,6 +38,27 @@ class Livraison{
   late String user;
   late String? motif;
   Livraison();
+}
+
+Future<int> getTransfertFields(String date, String user) async{
+  assert(date != "" && user != "");
+  collectedTransfert = [];
+  List data = await getTransfert(date, user).timeout(const Duration(seconds: 40));
+  for (Map<String, dynamic> mouvement in data){
+    Transfert objTransfert = Transfert();
+    objTransfert.date = mouvement["date"];
+    objTransfert.plaque = mouvement["plaque"];
+    objTransfert.logistic_official = mouvement["logistic_official"];
+    objTransfert.numero_mouvement = (mouvement["numero_mouvement"]) as int;
+    objTransfert.stock_central_depart = mouvement["stock_central_depart"];
+    objTransfert.stock_central_suivants = mouvement["stock_central_suivants"];
+    objTransfert.stock_central_retour = mouvement["stock_central_retour"];
+    objTransfert.photo_mvt = mouvement["photo_mvt"];
+    objTransfert.type_transport = mouvement["type_transport"];
+    objTransfert.motif = mouvement["motif"];
+    collectedTransfert.add(objTransfert);
+  }
+  return 0;
 }
 
 // GET methods session

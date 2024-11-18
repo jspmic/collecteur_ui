@@ -9,7 +9,7 @@ const String HOST = "https://jspemic.pythonanywhere.com";
 // Object fill up
 List<Transfert> collectedTransfert = [];
 
-class Transfert{
+class Transfert {
   String date = "";
   String plaque = "";
   String logistic_official = "";
@@ -18,13 +18,34 @@ class Transfert{
   Map<String, dynamic> stock_central_suivants = {};
   String stock_central_retour = "";
   String photo_mvt = "";
+  String photo_journal = "";
   String type_transport = "";
   String user = "";
   String? motif = "";
   Transfert();
+  List<Map> toDict() {
+    Map stock_svt = Map.from(stock_central_suivants);
+    return [
+      {
+        "date": date,
+        "plaque": plaque,
+        "Logistic Official": logistic_official,
+        "Numero du mouvement": numero_mouvement,
+        "Stock Central Depart": stock_central_depart,
+        "Stock Central Suivants": stock_svt.keys.map((e){
+          return stock_central_suivants[e];
+        }).toList(),
+        "Stock Central Retour": stock_central_retour,
+        "Photo du mouvement": photo_mvt,
+        "Photo du journal": photo_journal,
+        "Type de transport": type_transport,
+        "Motif": motif
+      }
+    ];
+  }
 }
 
-class Livraison{
+class Livraison {
   late String date;
   late String plaque;
   late String logistic_official;
@@ -34,17 +55,34 @@ class Livraison{
   late Map<String, Map<String, String>> boucle = {};
   late String stock_central_retour;
   String photo_mvt = "";
+  String photo_journal = "";
   late String type_transport;
   late String user;
   late String? motif;
   Livraison();
+  List<Map> toDict() {
+    return [
+      {
+        "date": date,
+        "plaque": plaque,
+        "Logistic Official": logistic_official,
+        "Numero du mouvement": numero_mouvement,
+        "Stock Central Depart": stock_central_depart,
+        "Stock Central Retour": stock_central_retour,
+        "Photo du mouvement": photo_mvt,
+        "Photo du journal": photo_journal,
+        "Type de transport": type_transport,
+        "Motif": motif
+      }
+    ];
+  }
 }
 
-Future<int> getTransfertFields(String date, String user) async{
-  assert(date != "" && user != "");
+Future<int> getTransfertFields(String date, String user) async {
   collectedTransfert = [];
-  List data = await getTransfert(date, user).timeout(const Duration(seconds: 40));
-  for (Map<String, dynamic> mouvement in data){
+  List data =
+      await getTransfert(date, user).timeout(const Duration(seconds: 40));
+  for (Map<String, dynamic> mouvement in data) {
     Transfert objTransfert = Transfert();
     objTransfert.date = mouvement["date"];
     objTransfert.plaque = mouvement["plaque"];
@@ -54,6 +92,7 @@ Future<int> getTransfertFields(String date, String user) async{
     objTransfert.stock_central_suivants = mouvement["stock_central_suivants"];
     objTransfert.stock_central_retour = mouvement["stock_central_retour"];
     objTransfert.photo_mvt = mouvement["photo_mvt"];
+    objTransfert.photo_journal = mouvement["photo_journal"];
     objTransfert.type_transport = mouvement["type_transport"];
     objTransfert.motif = mouvement["motif"];
     collectedTransfert.add(objTransfert);
@@ -75,8 +114,7 @@ Future<List> getTransfert(String date, String user) async {
       decoded = [];
     }
     return decoded;
-  }
-  on http.ClientException{
+  } on http.ClientException {
     return [];
   }
 }
@@ -93,8 +131,7 @@ Future<List> getLivraison(String date, String user) async {
       decoded = [];
     }
     return decoded;
-  }
-  on http.ClientException{
+  } on http.ClientException {
     return [];
   }
 }
@@ -103,19 +140,18 @@ Future<bool> isUser(String _n_9032, String _n_9064) async {
   await dotenv.load(fileName: ".env");
   String code = dotenv.env["CODE"].toString();
   var url = Uri.parse("$HOST/api/list");
-  try{
-    http.Response response = await http.get(url,
-        headers: {"x-api-key": code,
-          "Authorization": "$_n_9032:$_n_9064"}
-    ).timeout(Duration(seconds: 30), onTimeout: (){
+  try {
+    http.Response response = await http.get(url, headers: {
+      "x-api-key": code,
+      "Authorization": "$_n_9032:$_n_9064"
+    }).timeout(Duration(seconds: 30), onTimeout: () {
       return http.Response("No connection", 404);
     });
     if (response.statusCode == 200) {
       return true;
     }
     return false;
-  }
-  on http.ClientException{
+  } on http.ClientException {
     return false;
   }
 }

@@ -58,23 +58,23 @@ class _InterfaceState extends State<Interface> {
     sheet.getRangeByIndex(1, 5).setText("Stock Central Depart");
     sheet.getRangeByIndex(1, 6).setText("Succession des stocks");
     sheet.getRangeByIndex(1, 7).setText("Stock Central Retour");
-    sheet.getRangeByIndex(1, 8).setText("Photo du mouvement");
-    sheet.getRangeByIndex(1, 9).setText("Photo du journal");
-    sheet.getRangeByIndex(1, 10).setText("Type de transport");
-    sheet.getRangeByIndex(1, 11).setText("Motif");
+    sheet.getRangeByIndex(1, 8).setText("Type de transport");
+    sheet.getRangeByIndex(1, 9).setText("Motif");
+    sheet.getRangeByIndex(1, 10).setText("Photo du mouvement");
+    sheet.getRangeByIndex(1, 11).setText("Photo du journal");
     for (var i = 0; i < collectedTransfert.length; i++) {
       final item = collectedTransfert[i];
       sheet.getRangeByIndex(i + 2, 1).setText(item.date);
       sheet.getRangeByIndex(i + 2, 2).setText(item.plaque);
       sheet.getRangeByIndex(i + 2, 3).setText(item.logistic_official);
-      sheet.getRangeByIndex(i + 2, 4).setText(item.numero_mouvement.toString());
+      sheet.getRangeByIndex(i + 2, 4).setNumber(item.numero_mouvement.toDouble());//.setText(item.numero_mouvement.toString());
       sheet.getRangeByIndex(i + 2, 5).setText(item.stock_central_depart);
       sheet.getRangeByIndex(i + 2, 6).setText(printStockSuivants(item));
       sheet.getRangeByIndex(i + 2, 7).setText(item.stock_central_retour);
-      sheet.getRangeByIndex(i + 2, 8).setText(item.photo_mvt);
-      sheet.getRangeByIndex(i + 2, 9).setText(item.photo_journal);
-      sheet.getRangeByIndex(i + 2, 10).setText(item.type_transport);
-      sheet.getRangeByIndex(i + 2, 11).setText(item.motif);
+      sheet.getRangeByIndex(i + 2, 8).setText(item.type_transport);
+      sheet.getRangeByIndex(i + 2, 9).setText(item.motif);
+      sheet.hyperlinks.add(sheet.getRangeByIndex(i + 2, 10), xcel.HyperlinkType.url, item.photo_mvt);
+      sheet.hyperlinks.add(sheet.getRangeByIndex(i + 2, 11), xcel.HyperlinkType.url, item.photo_journal);
     }
     final List<int> bytes = workbook.saveAsStream();
     String date = "${dateSelected?.day}-${dateSelected?.month}-${dateSelected?.year}";

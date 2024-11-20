@@ -166,10 +166,10 @@ List<DataRow> _createTransfertRows() {
       DataCell(Text(e.stock_central_depart.toString())),
       DataCell(Text(printStockSuivants(e))),
       DataCell(Text(e.stock_central_retour.toString())),
-      DataCell(Text(e.photo_mvt.toString())),
-      DataCell(Text(e.photo_journal.toString())),
       DataCell(Text(e.type_transport.toString())),
-      DataCell(Text(e.motif.toString()))
+      DataCell(Text(e.motif.toString())),
+      DataCell(Text(e.photo_mvt.toString())),
+      DataCell(Text(e.photo_journal.toString()))
     ]);
   }).toList();
 }
@@ -196,16 +196,16 @@ List<DataColumn> _createTransfertColumns() {
         label: Text("Stock Central Retour",
             style: TextStyle(fontWeight: FontWeight.bold))),
     const DataColumn(
+        label: Text("Type de transport",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Motif", style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
         label: Text("Photo du mouvement",
             style: TextStyle(fontWeight: FontWeight.bold))),
     const DataColumn(
         label: Text("Photo du journal",
-            style: TextStyle(fontWeight: FontWeight.bold))),
-    const DataColumn(
-        label: Text("Type de transport",
-            style: TextStyle(fontWeight: FontWeight.bold))),
-    const DataColumn(
-        label: Text("Motif", style: TextStyle(fontWeight: FontWeight.bold)))
+            style: TextStyle(fontWeight: FontWeight.bold)))
   ];
 }
 

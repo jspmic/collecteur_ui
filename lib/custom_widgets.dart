@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:collecteur/excel_fields.dart';
@@ -147,10 +148,14 @@ class _StockState extends State<Stock> {
   }
 }
 
+String formatStock(String stock){
+  return stock.replaceAll('_', ' ');
+}
+
 String printStockSuivants(Transfert objTransf){
   String result = "";
   for (String stock in objTransf.stock_central_suivants.values){
-    result += "$stock - ";
+    result += "${formatStock(stock)} - ";
   }
   return result;
 }
@@ -163,15 +168,42 @@ List<DataRow> _createTransfertRows() {
       DataCell(Text(e.plaque.toString())),
       DataCell(Text(e.logistic_official.toString())),
       DataCell(Text(e.numero_mouvement.toString())),
-      DataCell(Text(e.stock_central_depart.toString())),
+      DataCell(Text(formatStock(e.stock_central_depart.toString()))),
       DataCell(Text(printStockSuivants(e))),
-      DataCell(Text(e.stock_central_retour.toString())),
+      DataCell(Text(formatStock(e.stock_central_retour.toString()))),
       DataCell(Text(e.type_transport.toString())),
       DataCell(Text(e.motif.toString())),
       DataCell(Text(e.photo_mvt.toString())),
       DataCell(Text(e.photo_journal.toString()))
     ]);
   }).toList();
+}
+
+List<DataRow> _createLivraisonRows() {
+  List<Livraison> _data = List.from(collectedLivraison);
+  List<DataRow> rows = [];
+  _data.map((e){
+    for (String l in e.boucle.keys) {
+      DataRow row = DataRow(cells: [
+      DataCell(Text(e.date.toString())),
+          DataCell(Text(e.plaque.toString())),
+          DataCell(Text(e.logistic_official.toString())),
+          DataCell(Text(e.numero_mouvement.toString())),
+          DataCell(Text(formatStock(e.stock_central_depart.toString()))),
+          DataCell(Text(e.boucle[l]!["livraison_retour"].toString())),
+        DataCell(Text(e.boucle[l]!["colline"].toString())),
+        DataCell(Text(e.boucle[l]!["input"].toString())),
+        DataCell(Text(e.boucle[l]!["quantite"].toString())),
+          DataCell(Text(formatStock(e.stock_central_retour.toString()))),
+          DataCell(Text(e.type_transport.toString())),
+          DataCell(Text(e.motif.toString())),
+          DataCell(Text(e.photo_mvt.toString())),
+          DataCell(Text(e.photo_journal.toString()))
+    ]);
+      rows.add(row);
+    }
+  }).toList();
+  return rows;
 }
 
 List<DataColumn> _createTransfertColumns() {
@@ -209,6 +241,50 @@ List<DataColumn> _createTransfertColumns() {
   ];
 }
 
+List<DataColumn> _createLivraisonColumns() {
+  return [
+    const DataColumn(
+        label: Text("Date", style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Plaque", style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Logistic Official",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Numero du mouvement",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Stock Central Depart",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Livraison ou Retour",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Colline",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Produit",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Quantité",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Stock Central Retour",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Type de transport",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Motif", style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Photo du mouvement",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("Photo du journal",
+            style: TextStyle(fontWeight: FontWeight.bold)))
+  ];
+}
+
 Widget transfertTable() {
   return SafeArea(
       child: SafeArea(
@@ -218,6 +294,17 @@ Widget transfertTable() {
           columns: _createTransfertColumns(), rows: _createTransfertRows()),
     ),
   ));
+}
+
+Widget livraisonTable() {
+  return SafeArea(
+      child: SafeArea(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+              columns: _createLivraisonColumns(), rows: _createLivraisonRows()),
+        ),
+      ));
 }
 
 Future<String> _getDst() async {

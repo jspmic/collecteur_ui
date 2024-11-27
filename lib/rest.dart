@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'excel_fields.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -175,6 +176,38 @@ Future<bool> isUser(String _n_9032, String _n_9064) async {
     }
     return false;
   } on http.ClientException {
+    return false;
+  }
+}
+
+Future<bool> populate() async {
+  await dotenv.load(fileName: ".env");
+  Worksheet workSheet = await Worksheet.fromAsset("assets/worksheet.xlsx");
+  String code = dotenv.env["CODE"].toString();
+  List<String?> districts = workSheet.readColumn("Feuille 1", DISTRICT);
+  List<String?> typeTransports = workSheet.readColumn("Feuille 1", TYPE_TRANSPORT);
+  List<String?> stocks = workSheet.readColumn("Feuille 1", STOCK_CENTRAL);
+  List<String?> inputs = workSheet.readColumn("Feuille 1", INPUT);
+  var url = Uri.parse("$HOST/api/populate");
+	var bodyContent = jsonEncode(<String, String>{
+		"districts": jsonEncode(districts),
+		"type_transports": jsonEncode(typeTransports),
+		"stocks": jsonEncode(stocks),
+		"inputs": jsonEncode(inputs)
+	});
+  try {
+    http.Response response = await http.post(url, headers: {
+			"x-api-key": code,
+			'Content-Type': 'application/json; charset=UTF-8'
+		},
+	body: bodyContent).timeout(const Duration(seconds: 60), onTimeout: () {
+      return http.Response("No connection", 404);
+    });
+    if (response.statusCode == 201) {
+      return true;
+    }
+    return false;
+  } on Exception {
     return false;
   }
 }

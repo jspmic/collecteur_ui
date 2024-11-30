@@ -37,7 +37,7 @@ jobs:
       uses: actions/upload-artifact@v3  # Save the build artifact
       with:
         name: collecteur-executable
-        path: build/windows/x64/runner/Release/collecteur.exe
+        path: build/windows/x64/runner/Release/*
       # with:
       #   name: windows-build
       #   path: build/windows/runner/Release/

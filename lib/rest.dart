@@ -1,11 +1,11 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'excel_fields.dart';
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Address definition
 const String HOST = "https://jspemic.pythonanywhere.com";
-//const String HOST = "http://localhost:5000";
+// const String HOST = "http://localhost:5000";
 
 // Object fill up
 List<Transfert> collectedTransfert = [];
@@ -180,10 +180,7 @@ Future<bool> isUser(String _n_9032, String _n_9064) async {
   }
 }
 
-Future<bool> populate() async {
-  await dotenv.load(fileName: ".env");
-  Worksheet workSheet = await Worksheet.fromAsset("assets/worksheet.xlsx");
-  String code = dotenv.env["CODE"].toString();
+Future<bool> populate(Worksheet workSheet, String code) async {
   List<String?> districts = workSheet.readColumn("Feuille 1", DISTRICT);
   List<String?> typeTransports = workSheet.readColumn("Feuille 1", TYPE_TRANSPORT);
   List<String?> stocks = workSheet.readColumn("Feuille 1", STOCK_CENTRAL);
@@ -196,6 +193,7 @@ Future<bool> populate() async {
 		"inputs": jsonEncode(inputs)
 	});
   try {
+  print(code);
     http.Response response = await http.post(url, headers: {
 			"x-api-key": code,
 			'Content-Type': 'application/json; charset=UTF-8'
@@ -211,3 +209,29 @@ Future<bool> populate() async {
     return false;
   }
 }
+
+// Future<bool> populateCollines(Worksheet workSheet, String code) async {
+//   List<String?> districts = workSheet.readColumn("Feuille 1", DISTRICT);
+//   var url = Uri.parse("$HOST/api/colline");
+//   List<String?> collines = [];
+//   for (var district in districts) {
+//     http.Response response = await http.post(url, headers: {
+//       "x-api-key": code,
+//       'Content-Type': 'application/json; charset=UTF-8'},
+//         body: jsonEncode({
+//           "district": district,
+//           "collines": jsonEncode(workSheet.readColline("Feuille 1", district))
+//         })).timeout(const Duration(seconds: 60), onTimeout: () {
+//       return http.Response("No connection", 404);
+//     });
+//     try {
+//       if (response.statusCode == 201) {
+//         return true;
+//       }
+//       return false;
+//     } on Exception {
+//       return false;
+//     }
+//   }
+//   return true;
+// }

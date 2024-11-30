@@ -193,7 +193,6 @@ Future<bool> populate(Worksheet workSheet, String code) async {
 		"inputs": jsonEncode(inputs)
 	});
   try {
-  print(code);
     http.Response response = await http.post(url, headers: {
 			"x-api-key": code,
 			'Content-Type': 'application/json; charset=UTF-8'

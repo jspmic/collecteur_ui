@@ -36,5 +36,8 @@ jobs:
     - name: Upload Windows Build Artifact
       uses: actions/upload-artifact@v3  # Save the build artifact
       with:
-        name: windows-build
-        path: build/windows/runner/Release/
+        name: collecteur-executable
+        path: build/windows/x64/runner/Release/collecteur.exe
+      # with:
+      #   name: windows-build
+      #   path: build/windows/runner/Release/

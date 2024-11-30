@@ -1,0 +1,31 @@
+name: Build Windows Executable
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3  # Fetch my code
+
+    - name: Set up Flutter
+      run: |
+        choco install flutter  # Install Flutter using Chocolatey
+        refreshenv
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Build Windows Executable
+      run: flutter build windows --release
+
+    - name: Upload Windows Build Artifact
+      uses: actions/upload-artifact@v3  # Save the build artifact
+      with:
+        name: windows-build
+        path: build/windows/runner/Release/

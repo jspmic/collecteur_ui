@@ -13,6 +13,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3  # Fetch my code
 
+    - name: Set up environment variables
+      run: |
+        echo "CODE=${{ secrets.CODE }}" >> .env
+        echo "COLLECTOR_SECRET=${{ secrets.COLLECTOR_SECRET }}" >> .env
+
     - name: Set up Flutter
       run: |
         curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.24.5-stable.zip

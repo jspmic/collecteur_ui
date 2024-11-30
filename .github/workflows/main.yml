@@ -15,9 +15,11 @@ jobs:
 
     - name: Set up Flutter
       run: |
-        choco install flutter --version=3.24.5 --confirm
-        echo "C:\tools\flutter\bin" >> $env:GITHUB_PATH
-        $env:PATH += ";C:\tools\flutter\bin"
+        curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.24.5-stable.zip
+        mkdir C:\flutter
+        tar -xf flutter.zip -C C:\flutter --strip-components=1
+        echo "C:\flutter\bin" >> $env:GITHUB_PATH
+        $env:PATH += ";C:\flutter\bin"
         flutter --version
 
     - name: Install dependencies

@@ -1,6 +1,7 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'excel_fields.dart';
+import 'dart:convert';
 
 // Address definition
 const String HOST = "https://jspemic.pythonanywhere.com";
@@ -8,6 +9,7 @@ const String HOST = "https://jspemic.pythonanywhere.com";
 
 // Object fill up
 List<Transfert> collectedTransfert = [];
+List<Livraison> collectedLivraison = [];
 
 class Transfert {
   String date = "";
@@ -49,10 +51,11 @@ class Livraison {
   late String date;
   late String plaque;
   late String logistic_official;
-  late String numero_mouvement;
+  late int numero_mouvement;
   late String district;
   late String stock_central_depart;
-  late Map<String, Map<String, String>> boucle = {};
+  //Map<String, Map<String, String>> boucle = {};
+  Map<String, dynamic> boucle = {};
   late String stock_central_retour;
   String photo_mvt = "";
   String photo_journal = "";
@@ -96,6 +99,27 @@ Future<int> getTransfertFields(String date, String user) async {
     objTransfert.type_transport = mouvement["type_transport"];
     objTransfert.motif = mouvement["motif"];
     collectedTransfert.add(objTransfert);
+  }
+  return 0;
+}
+
+Future<int> getLivraisonFields(String date, String user) async {
+  collectedLivraison = [];
+  List data = await getLivraison(date, user).timeout(const Duration(seconds: 40));
+  for (Map<String, dynamic> mouvement in data) {
+    Livraison objLivraison= Livraison();
+    objLivraison.date = mouvement["date"];
+    objLivraison.plaque = mouvement["plaque"];
+    objLivraison.logistic_official = mouvement["logistic_official"];
+    objLivraison.numero_mouvement = (mouvement["numero_mouvement"]) as int;
+    objLivraison.stock_central_depart = mouvement["stock_central_depart"];
+    objLivraison.boucle = mouvement["boucle"];
+    objLivraison.stock_central_retour = mouvement["stock_central_retour"];
+    objLivraison.photo_mvt = mouvement["photo_mvt"];
+    objLivraison.photo_journal = mouvement["photo_journal"];
+    objLivraison.type_transport = mouvement["type_transport"];
+    objLivraison.motif = mouvement["motif"];
+    collectedLivraison.add(objLivraison);
   }
   return 0;
 }
@@ -144,7 +168,7 @@ Future<bool> isUser(String _n_9032, String _n_9064) async {
     http.Response response = await http.get(url, headers: {
       "x-api-key": code,
       "Authorization": "$_n_9032:$_n_9064"
-    }).timeout(Duration(seconds: 30), onTimeout: () {
+    }).timeout(const Duration(seconds: 30), onTimeout: () {
       return http.Response("No connection", 404);
     });
     if (response.statusCode == 200) {
@@ -155,3 +179,59 @@ Future<bool> isUser(String _n_9032, String _n_9064) async {
     return false;
   }
 }
+
+Future<bool> populate(Worksheet workSheet, String code) async {
+  List<String?> districts = workSheet.readColumn("Feuille 1", DISTRICT);
+  List<String?> typeTransports = workSheet.readColumn("Feuille 1", TYPE_TRANSPORT);
+  List<String?> stocks = workSheet.readColumn("Feuille 1", STOCK_CENTRAL);
+  List<String?> inputs = workSheet.readColumn("Feuille 1", INPUT);
+  var url = Uri.parse("$HOST/api/populate");
+	var bodyContent = jsonEncode(<String, String>{
+		"districts": jsonEncode(districts),
+		"type_transports": jsonEncode(typeTransports),
+		"stocks": jsonEncode(stocks),
+		"inputs": jsonEncode(inputs)
+	});
+  try {
+  print(code);
+    http.Response response = await http.post(url, headers: {
+			"x-api-key": code,
+			'Content-Type': 'application/json; charset=UTF-8'
+		},
+	body: bodyContent).timeout(const Duration(seconds: 60), onTimeout: () {
+      return http.Response("No connection", 404);
+    });
+    if (response.statusCode == 201) {
+      return true;
+    }
+    return false;
+  } on Exception {
+    return false;
+  }
+}
+
+// Future<bool> populateCollines(Worksheet workSheet, String code) async {
+//   List<String?> districts = workSheet.readColumn("Feuille 1", DISTRICT);
+//   var url = Uri.parse("$HOST/api/colline");
+//   List<String?> collines = [];
+//   for (var district in districts) {
+//     http.Response response = await http.post(url, headers: {
+//       "x-api-key": code,
+//       'Content-Type': 'application/json; charset=UTF-8'},
+//         body: jsonEncode({
+//           "district": district,
+//           "collines": jsonEncode(workSheet.readColline("Feuille 1", district))
+//         })).timeout(const Duration(seconds: 60), onTimeout: () {
+//       return http.Response("No connection", 404);
+//     });
+//     try {
+//       if (response.statusCode == 201) {
+//         return true;
+//       }
+//       return false;
+//     } on Exception {
+//       return false;
+//     }
+//   }
+//   return true;
+// }

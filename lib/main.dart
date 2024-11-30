@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:collecteur/custom_widgets.dart';
 import 'package:collecteur/excel_fields.dart';
 import 'package:collecteur/rest.dart';
+import 'package:collecteur/populateScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +10,7 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xcel;
 
 void main() async{
   await dotenv.load(fileName: ".env");
+  initialize();
   runApp(const Collecteur());
 }
 
@@ -26,6 +28,10 @@ class Collecteur extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
           useMaterial3: true,
           primarySwatch: Colors.lightGreen),
+      initialRoute: '/',
+      routes: {
+        "/populate": (context) => const Populate()
+      },
       title: "Collecteur",
       home: const Interface(),
     );
@@ -43,9 +49,7 @@ class _InterfaceState extends State<Interface> {
   String district = "";
   String program = "";
   bool isLoading = false;
-  bool isLoading2 = false;
   Color stateColor = Colors.black;
-  Color stateColor2 = Colors.black;
   String stock = "";
   var user = TextEditingController();
   List? data;
@@ -163,24 +167,6 @@ class _InterfaceState extends State<Interface> {
       isLoading = false;
     });
   }
-  void populateFields() async{
-	  setState(() {
-		isLoading2 = true;
-	  });
-	  await dotenv.load(fileName: ".env");
-	  String code = dotenv.env["CODE"].toString();
-	  Worksheet workSheet = await Worksheet.fromAsset("assets/worksheet.xlsx");
-	  bool status = await populate(workSheet, code);
-	  if (status){
-		  stateColor2 = Colors.green;
-	  }
-	  else{
-		  stateColor2 = Colors.red;
-	  }
-	  setState(() {
-		isLoading2 = false;
-	  });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,17 +205,15 @@ class _InterfaceState extends State<Interface> {
                       onSelect: (value) {
                         program = value;
                       }),
-				  isLoading2 ? const CircularProgressIndicator() :
-				  ElevatedButton(
-					  onPressed: () {
-						  populateFields();
-					  },
-					  style: ElevatedButton.styleFrom(
-						  backgroundColor: Colors.white),
-					  child: Text("Remplir",
-						  style: TextStyle(color: stateColor2))),
-                ],
-              ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/populate");
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white),
+                      child: const Text("Remplir",
+                        style: TextStyle(color: Colors.black))),
+              ]),
               SizedBox(height: MediaQuery.of(context).size.height / 15),
               program != ""
                   ? program == "Transfert" ? SingleChildScrollView(child: transfertTable()) : SingleChildScrollView(child: livraisonTable())
@@ -263,7 +247,7 @@ class _InterfaceState extends State<Interface> {
                       },
                       style:
                       ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                      child: const Text("Clear",
+                      child: const Text("Nettoyer",
                           style: TextStyle(color: Colors.black))),
                 ],
               )

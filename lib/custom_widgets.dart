@@ -30,6 +30,7 @@ void initialize({String? district}) {
     return;
   }
   list(PROGRAM);
+  list(DISTRICT);
 }
 
 // Custom DatePicker widget

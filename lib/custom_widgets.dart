@@ -29,12 +29,7 @@ void initialize({String? district}) {
     list(DISTRICT + 5, district: district);
     return;
   }
-  list(STOCK_CENTRAL);
-  list(TYPE_TRANSPORT);
   list(PROGRAM);
-  list(INPUT);
-  list(DISTRICT);
-  list(LIVRAISON_RETOUR);
 }
 
 // Custom DatePicker widget
@@ -319,7 +314,7 @@ Future<String> _getDst() async {
 
 Future<File> _localFile(String fileName) async {
   final path = await _getDst();
-  return File('$path/$fileName');
+  return File('$path\$fileName');
 }
 
 Future<File> writeCounter(String fileName, List<int> bytes) async {

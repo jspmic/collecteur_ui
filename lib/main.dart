@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xcel;
 
-void main() {
+void main() async{
+  await dotenv.load(fileName: ".env");
   runApp(const Collecteur());
 }
 
@@ -85,7 +86,7 @@ class _InterfaceState extends State<Interface> {
     final List<int> bytes = workbook.saveAsStream();
     String date = "${dateSelected?.day}-${dateSelected?.month}-${dateSelected?.year}";
     String now = DateFormat('hh:mm:ss a').format(DateTime.now());
-    writeCounter("${user.text}_Transferts_du_$date\_$now.xlsx", bytes);
+    writeCounter("${user.text}_Transferts_du_${date}_$now.xlsx", bytes);
     workbook.dispose();
     setState(() {
       stateColor = Colors.green;
@@ -143,7 +144,7 @@ class _InterfaceState extends State<Interface> {
     final List<int> bytes = workbook.saveAsStream();
     String date = "${dateSelected?.day}-${dateSelected?.month}-${dateSelected?.year}";
     String now = DateFormat('hh:mm:ss a').format(DateTime.now());
-    writeCounter("${user.text}_Livraison_du_$date\_$now.xlsx", bytes);
+    writeCounter("${user.text}_Livraison_du_${date}_$now.xlsx", bytes);
     workbook.dispose();
     setState(() {
       stateColor = Colors.green;

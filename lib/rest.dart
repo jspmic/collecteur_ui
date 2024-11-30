@@ -161,7 +161,6 @@ Future<List> getLivraison(String date, String user) async {
 }
 
 Future<bool> isUser(String _n_9032, String _n_9064) async {
-  await dotenv.load(fileName: ".env");
   String code = dotenv.env["CODE"].toString();
   var url = Uri.parse("$HOST/api/list");
   try {

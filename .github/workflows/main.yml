@@ -15,7 +15,7 @@ jobs:
 
     - name: Set up Flutter
       run: |
-        choco install flutter --confirm
+        choco install flutter --version=3.24.5 --confirm
         echo "C:\tools\flutter\bin" >> $env:GITHUB_PATH
         $env:PATH += ";C:\tools\flutter\bin"
         flutter --version

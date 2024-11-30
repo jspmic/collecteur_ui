@@ -15,8 +15,11 @@ jobs:
 
     - name: Set up Flutter
       run: |
-        choco install flutter  # Install Flutter using Chocolatey
-        refreshenv
+        choco install flutter --confirm
+        # Add Flutter to PATH
+        echo "C:\tools\flutter\bin" >> $env:GITHUB_PATH
+        # Verify Flutter installation
+        flutter --version
 
     - name: Install dependencies
       run: flutter pub get

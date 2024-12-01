@@ -16,6 +16,10 @@ class _PopulateState extends State<Populate> {
   bool isLoading3 = false;
   Color stateColor2 = Colors.black;
   Color stateColor3 = Colors.black;
+  void deleteC() async{
+    String code = dotenv.env["CODE"].toString();
+	await deleteCollines(code);
+  }
   void populateFields(bool collineEnabled) async{
     setState(() {
       collineEnabled ? isLoading3 = true : isLoading2 = true;
@@ -64,7 +68,9 @@ class _PopulateState extends State<Populate> {
               SizedBox(height: (MediaQuery.of(context).size.height)/6),
 
               isLoading2 ? const CircularProgressIndicator() :
-              ElevatedButton(onPressed: () => populateFields(false), child: Text("Remplir d'autres colonnes", style: TextStyle(color: stateColor2)))
+              ElevatedButton(onPressed: () => populateFields(false), child: Text("Remplir d'autres colonnes", style: TextStyle(color: stateColor2))),
+              SizedBox(height: (MediaQuery.of(context).size.height)/6),
+              ElevatedButton(onPressed: () => deleteC(), child: const Text("Supprimer les colinnes", style: TextStyle(color: Colors.black)))
             ],
           ),
         ),

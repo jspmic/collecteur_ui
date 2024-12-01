@@ -17,6 +17,7 @@ jobs:
       run: |
         echo "CODE=${{ secrets.CODE }}" >> .env
         echo "COLLECTOR_SECRET=${{ secrets.COLLECTOR_SECRET }}" >> .env
+        echo "HOST=${{ secrets.HOST }}" >> .env
 
     - name: Set up Flutter
       run: |

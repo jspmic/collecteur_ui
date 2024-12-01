@@ -211,19 +211,22 @@ Future<bool> populateCollines(Worksheet workSheet, String code) async {
   List<String?> districts = workSheet.readColumn("Feuille 1", DISTRICT);
   districts = districts.sublist(1);
   var url = Uri.parse("$HOST/api/colline");
+  http.Response? response;
   //List<String?> collines = [];
   for (var district in districts) {
-    http.Response response = await http.post(url, headers: {
+	String? collines = jsonEncode(workSheet.readColline("Feuille 1", district));
+    response = await http.post(url, headers: {
       "x-api-key": code,
       'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode({
           "district": district,
-          "collines": jsonEncode(workSheet.readColline("Feuille 1", district))
+          "collines": collines
         })).timeout(const Duration(minutes: 2), onTimeout: () {
       return http.Response("No connection", 404);
     });
+	}
     try {
-      if (response.statusCode == 201) {
+      if (response!.statusCode == 201) {
         return true;
       }
       return false;
@@ -231,5 +234,12 @@ Future<bool> populateCollines(Worksheet workSheet, String code) async {
       return false;
     }
   }
-  return true;
+
+Future<bool> deleteCollines(String code) async{
+	var url = Uri.parse("$HOST/api/colline");
+	http.Response response;
+	response = await http.delete(url, headers: {
+	  "x-api-key": code,
+	  'Content-Type': 'application/json; charset=UTF-8'});
+	return response.statusCode == 200;
 }

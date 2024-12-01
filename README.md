@@ -8,10 +8,14 @@ This small app reads from the <a href="https://github.com/jspmic/rest-api">REST 
 # Demonstration
 Here are some examples for `Livraison` and `Transfert` being displayed in the app:
 - Livraison
-![Livraison Demo](media/livraison_opt.gif)
+
+<video src="media/livraison.mp4" controls autoplay loop muted>
+</video>
 
 - Transfert
-![Transfert Demo](media/transfert_opt.gif)
+
+<video src="media/transfert.mp4" controls autoplay loop muted>
+</video>
 
 # Issues
 If you're one of the few people who are using it, feel free to open an issue when a problem is encountered.

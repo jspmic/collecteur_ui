@@ -172,7 +172,7 @@ class _InterfaceState extends State<Interface> {
   Widget build(BuildContext context) {
     return Focus(
       onKeyEvent: (node, event) {
-        return (event.logicalKey == LogicalKeyboardKey.keyA)
+        return (event.logicalKey == LogicalKeyboardKey.superKey)
             ? KeyEventResult.handled
             : KeyEventResult.ignored;
       },

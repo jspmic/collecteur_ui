@@ -17,14 +17,14 @@ class _PopulateState extends State<Populate> {
   Color stateColor2 = Colors.black;
   Color stateColor3 = Colors.black;
   void deleteC() async{
-    String code = dotenv.env["CODE"].toString();
+    String code = dotenv.env["COLLECTOR_SECRET"].toString();
 	await deleteCollines(code);
   }
   void populateFields(bool collineEnabled) async{
     setState(() {
       collineEnabled ? isLoading3 = true : isLoading2 = true;
     });
-    String code = dotenv.env["CODE"].toString();
+    String code = dotenv.env["COLLECTOR_SECRET"].toString();
     Worksheet workSheet = await Worksheet.fromAsset("assets/worksheet.xlsx");
     bool status = collineEnabled ? await populateCollines(workSheet, code) : await populate(workSheet, code);
     //bool status2 = await populateCollines(workSheet, code);

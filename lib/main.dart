@@ -132,7 +132,7 @@ class _InterfaceState extends State<Interface> {
         sheet.getRangeByIndex(i + count, 6).setText(item.boucle[j]!["livraison_retour"]);
         sheet.getRangeByIndex(i + count, 7).setText(item.boucle[j]!["colline"]);
         sheet.getRangeByIndex(i + count, 8).setText(item.boucle[j]!["input"]);
-        sheet.getRangeByIndex(i + count, 9).setText(item.boucle[j]!["quantite"]);
+        sheet.getRangeByIndex(i + count, 9).setNumber(item.boucle[j]!["quantite"]);
         sheet.getRangeByIndex(i + count, 10).setText(formatStock(item.stock_central_retour));
         sheet.getRangeByIndex(i + count, 11).setText(item.type_transport);
         sheet.getRangeByIndex(i + count, 12).setText(item.motif);

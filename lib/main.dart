@@ -14,6 +14,9 @@ void main() async{
   runApp(const Collecteur());
 }
 
+DateTime? beginDate;
+DateTime? endDate;
+
 Transfert objTransfert = Transfert();
 Livraison objLivraison = Livraison();
 
@@ -88,7 +91,7 @@ class _InterfaceState extends State<Interface> {
       sheet.hyperlinks.add(sheet.getRangeByIndex(i + 2, 11), xcel.HyperlinkType.url, item.photo_journal);
     }
     final List<int> bytes = workbook.saveAsStream();
-    String date = "${dateSelected?.day}-${dateSelected?.month}-${dateSelected?.year}";
+    String date = "${beginDate?.day}-${beginDate?.month}-${beginDate?.year}";
     String now = DateFormat('hh:mm:ss a').format(DateTime.now());
     writeCounter("${user.text}_Transferts_du_${date}_$now.xlsx", bytes);
     workbook.dispose();
@@ -146,7 +149,7 @@ class _InterfaceState extends State<Interface> {
       }
     }
     final List<int> bytes = workbook.saveAsStream();
-    String date = "${dateSelected?.day}-${dateSelected?.month}-${dateSelected?.year}";
+    String date = "${beginDate?.day}-${beginDate?.month}-${beginDate?.year}";
     String now = DateFormat('hh:mm:ss a').format(DateTime.now());
     writeCounter("${user.text}_Livraison_du_${date}_$now.xlsx", bytes);
     workbook.dispose();
@@ -155,14 +158,15 @@ class _InterfaceState extends State<Interface> {
     });
   }
 
-  void retrieve(String program, DateTime dateSelect) async {
-    String date = "${dateSelect.day}/${dateSelect.month}/${dateSelect.year}";
+  void retrieve(String program, DateTime dateSelect1, DateTime? dateSelect2) async {
+    String date = "${dateSelect1.day}/${dateSelect1.month}/${dateSelect1.year}";
+    String? date2 = dateSelect2 != null ? "${dateSelect2.day}/${dateSelect2.month}/${dateSelect2.year}" : null;
     setState(() {
       isLoading = true;
     });
     program == "Transfert"
-        ? await getTransfertFields(date, user.text)
-        : await getLivraisonFields(date, user.text);
+        ? await getTransfertFields(date, date2, user.text)
+        : await getLivraisonFields(date, date2, user.text);
     setState(() {
       isLoading = false;
     });
@@ -190,7 +194,12 @@ class _InterfaceState extends State<Interface> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const DatePicker(),
+                  DatePicker(placeHolder: "Date Début", onSelect: (begin_date){
+                    beginDate = begin_date;
+                  }),
+                  DatePicker(placeHolder: "Date Fin", onSelect: (end_date){
+                    endDate = end_date;
+                  }),
                   SizedBox(
                     width: 100,
                     child: TextField(
@@ -215,8 +224,9 @@ class _InterfaceState extends State<Interface> {
                         style: TextStyle(color: Colors.black))),
               ]),
               SizedBox(height: MediaQuery.of(context).size.height / 15),
-              program != ""
-                  ? program == "Transfert" ? SingleChildScrollView(child: transfertTable()) : SingleChildScrollView(child: livraisonTable())
+              program != "" ? SingleChildScrollView(scrollDirection: Axis.vertical, child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: program == "Transfert" ? transfertTable() : livraisonTable()))
               : const Text("Pas de données", style: TextStyle(color: Colors.grey)),
               SizedBox(height: MediaQuery.of(context).size.height / 2),
               Row(
@@ -226,7 +236,7 @@ class _InterfaceState extends State<Interface> {
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
                           onPressed: () {
-                            retrieve(program, dateSelected!);
+                            retrieve(program, beginDate!, endDate);
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white),

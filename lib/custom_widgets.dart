@@ -7,7 +7,7 @@ import 'package:collecteur/rest.dart';
 Map<int, Iterable<String?>> cache = {};
 Map<String?, Iterable<String?>> cache2 = {};
 
-DateTime? dateSelected;var url = Uri.parse("$HOST/api/colline");
+var url = Uri.parse("$HOST/api/colline");
 bool collineDisponible = false;
 Color background = Colors.white;
 
@@ -35,7 +35,9 @@ void initialize({String? district}) {
 
 // Custom DatePicker widget
 class DatePicker extends StatefulWidget {
-  const DatePicker({super.key});
+  final String placeHolder;
+  final Function(DateTime?) onSelect;
+  const DatePicker({super.key, required this.placeHolder, required this.onSelect});
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -52,10 +54,11 @@ class _DatePickerState extends State<DatePicker> {
         if (selected != null && selected != _date) {
           setState(() {
             _date = selected;
-            dateSelected = _date;
+            widget.onSelect(_date);
           });
         }
       });
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -67,7 +70,7 @@ class _DatePickerState extends State<DatePicker> {
               style: ElevatedButton.styleFrom(backgroundColor: background),
               child: Text(
                 _date == null
-                    ? "Date..."
+                    ? "${widget.placeHolder}..."
                     : "${_date?.day} / ${_date?.month} / ${_date?.year}",
                 style: TextStyle(
                     color: background == Colors.white

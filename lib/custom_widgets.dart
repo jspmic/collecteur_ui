@@ -284,25 +284,34 @@ List<DataColumn> _createLivraisonColumns() {
 }
 
 Widget transfertTable() {
+  final ScrollController horizontalController = ScrollController();
   return SafeArea(
-      child: SafeArea(
-    child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-          columns: _createTransfertColumns(), rows: _createTransfertRows()),
-    ),
-  ));
+      child: Scrollbar(
+	  controller: horizontalController,
+	  thumbVisibility: true,
+	  child: SingleChildScrollView(
+		controller: horizontalController,
+		scrollDirection: Axis.horizontal,
+		child: SingleChildScrollView(
+		scrollDirection: Axis.vertical,
+		child: DataTable(
+			columns: _createTransfertColumns(), rows: _createTransfertRows())),
+  )));
 }
 
 Widget livraisonTable() {
+  final ScrollController horizontalController = ScrollController();
   return SafeArea(
-      child: SafeArea(
+	  child: Scrollbar(
+		controller: horizontalController,
+		thumbVisibility: true,
         child: SingleChildScrollView(
+		controller: horizontalController,
           scrollDirection: Axis.horizontal,
           child: DataTable(
-              columns: _createLivraisonColumns(), rows: _createLivraisonRows()),
+              columns: _createLivraisonColumns(), rows: _createLivraisonRows())),
         ),
-      ));
+      );
 }
 
 Future<String> _getDst() async {
@@ -318,7 +327,10 @@ Future<String> _getDst() async {
 
 Future<File> _localFile(String fileName) async {
   final path = await _getDst();
-  return File('$path\$fileName');
+  String fileNameCopy = fileName.replaceAll(":", "-");
+  fileNameCopy = fileNameCopy.replaceAll(" ", "_");
+  String p = "$path\\$fileNameCopy";
+  return File(p);
 }
 
 Future<File> writeCounter(String fileName, List<int> bytes) async {

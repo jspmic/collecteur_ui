@@ -80,10 +80,10 @@ class Livraison {
   }
 }
 
-Future<int> getTransfertFields(String date, String user) async {
+Future<int> getTransfertFields(String date, String? date2, String user) async {
   collectedTransfert = [];
   List data =
-      await getTransfert(date, user).timeout(const Duration(seconds: 40));
+      await getTransfert(date, date2, user).timeout(const Duration(seconds: 40));
   for (Map<String, dynamic> mouvement in data) {
     Transfert objTransfert = Transfert();
     objTransfert.date = mouvement["date"];
@@ -102,9 +102,9 @@ Future<int> getTransfertFields(String date, String user) async {
   return 0;
 }
 
-Future<int> getLivraisonFields(String date, String user) async {
+Future<int> getLivraisonFields(String date, String? date2,String user) async {
   collectedLivraison = [];
-  List data = await getLivraison(date, user).timeout(const Duration(seconds: 40));
+  List data = await getLivraison(date, date2, user).timeout(const Duration(seconds: 40));
   for (Map<String, dynamic> mouvement in data) {
     Livraison objLivraison= Livraison();
     objLivraison.date = mouvement["date"];
@@ -125,8 +125,9 @@ Future<int> getLivraisonFields(String date, String user) async {
 
 // GET methods session
 
-Future<List> getTransfert(String date, String user) async {
-  var url = Uri.parse("$HOST/api/transferts?date=$date&user=$user");
+Future<List> getTransfert(String date, String? date2, String user) async {
+  var url = Uri.parse(date2 != null ? "$HOST/api/transferts?date=$date&date2=$date2&user=$user" :
+  "$HOST/api/livraisons?date=$date&user=$user");
   try {
     http.Response response = await http.get(url);
     var decoded = [];
@@ -142,8 +143,9 @@ Future<List> getTransfert(String date, String user) async {
   }
 }
 
-Future<List> getLivraison(String date, String user) async {
-  var url = Uri.parse("$HOST/api/livraisons?date=$date&user=$user");
+Future<List> getLivraison(String date, String? date2, String user) async {
+  var url = Uri.parse(date2 != null ? "$HOST/api/livraisons?date=$date&date2=$date2&user=$user" :
+  "$HOST/api/livraisons?date=$date&user=$user");
   try {
     http.Response response = await http.get(url);
     var decoded = [];

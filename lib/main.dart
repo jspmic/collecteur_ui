@@ -152,7 +152,7 @@ class _InterfaceState extends State<Interface> {
     final List<int> bytes = workbook.saveAsStream();
     String date = "${beginDate?.day}-${beginDate?.month}-${beginDate?.year}";
     String now = DateFormat('hh:mm:ss a').format(DateTime.now());
-    writeCounter("${user.text}_Livraison_du_${date}_$now.xlsx", bytes);
+    writeCounter("${user.text}-Livraison_du_${date}_$now.xlsx", bytes);
     workbook.dispose();
     setState(() {
       stateColor = Colors.green;
@@ -225,11 +225,9 @@ class _InterfaceState extends State<Interface> {
                         style: TextStyle(color: Colors.black))),
               ]),
               SizedBox(height: MediaQuery.of(context).size.height / 15),
-              program != "" ? SingleChildScrollView(scrollDirection: Axis.vertical, child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: program == "Transfert" ? transfertTable() : livraisonTable()))
+              program != "" ? program == "Transfert" ? transfertTable() : livraisonTable()
               : const Text("Pas de données", style: TextStyle(color: Colors.grey)),
-              SizedBox(height: MediaQuery.of(context).size.height / 2),
+              SizedBox(height: MediaQuery.of(context).size.height / 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -253,6 +251,7 @@ class _InterfaceState extends State<Interface> {
                         setState(() {
                           collectedTransfert = [];
                           collectedLivraison = [];
+						  program = "";
                           stateColor = Colors.black;
                         });
                       },

@@ -113,14 +113,15 @@ class _InterfaceState extends State<Interface> {
     sheet.getRangeByIndex(1, 4).setText("Numero du mouvement");
     sheet.getRangeByIndex(1, 5).setText("Stock Central Depart");
     sheet.getRangeByIndex(1, 6).setText("Livraison ou Retour");
-    sheet.getRangeByIndex(1, 7).setText("Colline");
-    sheet.getRangeByIndex(1, 8).setText("Produit");
-    sheet.getRangeByIndex(1, 9).setText("Quantité");
-    sheet.getRangeByIndex(1, 10).setText("Stock Central Retour");
-    sheet.getRangeByIndex(1, 11).setText("Type de transport");
-    sheet.getRangeByIndex(1, 12).setText("Motif");
-    sheet.getRangeByIndex(1, 13).setText("Photo du mouvement");
-    sheet.getRangeByIndex(1, 14).setText("Photo du journal du camion");
+    sheet.getRangeByIndex(1, 7).setText("District");
+    sheet.getRangeByIndex(1, 8).setText("Colline");
+    sheet.getRangeByIndex(1, 9).setText("Produit");
+    sheet.getRangeByIndex(1, 10).setText("Quantité");
+    sheet.getRangeByIndex(1, 11).setText("Stock Central Retour");
+    sheet.getRangeByIndex(1, 12).setText("Type de transport");
+    sheet.getRangeByIndex(1, 13).setText("Motif");
+    sheet.getRangeByIndex(1, 14).setText("Photo du mouvement");
+    sheet.getRangeByIndex(1, 15).setText("Photo du journal du camion");
     DateFormat format = DateFormat("dd/MM/yyyy");
     for (var i = 0; i < collectedLivraison.length; i++) {
       for (String j in collectedLivraison[i].boucle.keys) {
@@ -133,18 +134,19 @@ class _InterfaceState extends State<Interface> {
             .toDouble());
         sheet.getRangeByIndex(i + count, 5).setText(formatStock(item.stock_central_depart));
         sheet.getRangeByIndex(i + count, 6).setText(item.boucle[j]!["livraison_retour"]);
-        sheet.getRangeByIndex(i + count, 7).setText(item.boucle[j]!["colline"]);
-        sheet.getRangeByIndex(i + count, 8).setText(item.boucle[j]!["input"]);
-        sheet.getRangeByIndex(i + count, 9).setNumber(item.boucle[j]!["quantite"] != null ? double.parse(item.boucle[j]!["quantite"])
+        sheet.getRangeByIndex(i + count, 7).setText(item.district);
+        sheet.getRangeByIndex(i + count, 8).setText(item.boucle[j]!["colline"]);
+        sheet.getRangeByIndex(i + count, 9).setText(item.boucle[j]!["input"]);
+        sheet.getRangeByIndex(i + count, 10).setNumber(item.boucle[j]!["quantite"] != null ? double.parse(item.boucle[j]!["quantite"])
 		: 0);
-        sheet.getRangeByIndex(i + count, 10).setText(formatStock(item.stock_central_retour));
-        sheet.getRangeByIndex(i + count, 11).setText(item.type_transport);
-        sheet.getRangeByIndex(i + count, 12).setText(item.motif);
-        sheet.hyperlinks.add(
-            sheet.getRangeByIndex(i + count, 13), xcel.HyperlinkType.url,
-            item.photo_mvt);
+        sheet.getRangeByIndex(i + count, 11).setText(formatStock(item.stock_central_retour));
+        sheet.getRangeByIndex(i + count, 12).setText(item.type_transport);
+        sheet.getRangeByIndex(i + count, 13).setText(item.motif);
         sheet.hyperlinks.add(
             sheet.getRangeByIndex(i + count, 14), xcel.HyperlinkType.url,
+            item.photo_mvt);
+        sheet.hyperlinks.add(
+            sheet.getRangeByIndex(i + count, 15), xcel.HyperlinkType.url,
             item.photo_journal);
         count++;
       }

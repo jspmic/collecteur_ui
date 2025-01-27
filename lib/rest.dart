@@ -68,6 +68,7 @@ class Livraison {
         "date": date,
         "plaque": plaque,
         "Logistic Official": logistic_official,
+        "District": district,
         "Numero du mouvement": numero_mouvement,
         "Stock Central Depart": stock_central_depart,
         "Stock Central Retour": stock_central_retour,
@@ -110,6 +111,7 @@ Future<int> getLivraisonFields(String date, String? date2,String user) async {
     objLivraison.date = mouvement["date"];
     objLivraison.plaque = mouvement["plaque"];
     objLivraison.logistic_official = mouvement["logistic_official"];
+    objLivraison.district = mouvement["district"];
     objLivraison.numero_mouvement = (mouvement["numero_mouvement"]) as int;
     objLivraison.stock_central_depart = mouvement["stock_central_depart"];
     objLivraison.boucle = mouvement["boucle"];

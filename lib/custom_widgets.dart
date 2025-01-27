@@ -189,9 +189,10 @@ List<DataRow> _createLivraisonRows() {
           DataCell(Text(e.numero_mouvement.toString())),
           DataCell(Text(formatStock(e.stock_central_depart.toString()))),
           DataCell(Text(e.boucle[l]!["livraison_retour"].toString())),
-        DataCell(Text(e.boucle[l]!["colline"].toString())),
-        DataCell(Text(e.boucle[l]!["input"].toString())),
-        DataCell(Text(e.boucle[l]!["quantite"].toString())),
+          DataCell(Text(e.district.toString())),
+		  DataCell(Text(e.boucle[l]!["colline"].toString())),
+		  DataCell(Text(e.boucle[l]!["input"].toString())),
+		  DataCell(Text(e.boucle[l]!["quantite"].toString())),
           DataCell(Text(formatStock(e.stock_central_retour.toString()))),
           DataCell(Text(e.type_transport.toString())),
           DataCell(Text(e.motif.toString())),
@@ -256,6 +257,9 @@ List<DataColumn> _createLivraisonColumns() {
             style: TextStyle(fontWeight: FontWeight.bold))),
     const DataColumn(
         label: Text("Livraison ou Retour",
+            style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
+        label: Text("District",
             style: TextStyle(fontWeight: FontWeight.bold))),
     const DataColumn(
         label: Text("Colline",

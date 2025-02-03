@@ -3,6 +3,7 @@ import 'package:collecteur/custom_widgets.dart';
 import 'package:collecteur/excel_fields.dart';
 import 'package:collecteur/rest.dart';
 import 'package:collecteur/populateScreen.dart';
+import 'package:collecteur/userScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -33,7 +34,8 @@ class Collecteur extends StatelessWidget {
           primarySwatch: Colors.lightGreen),
       initialRoute: '/',
       routes: {
-        "/populate": (context) => const Populate()
+        "/populate": (context) => const Populate(),
+        "/user": (context) => const addUser()
       },
       title: "Collecteur",
       home: const Interface(),
@@ -185,11 +187,11 @@ class _InterfaceState extends State<Interface> {
       },
       child: Scaffold(
           appBar: AppBar(
-            title: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset("assets/icon/drawer2.png",
-                  fit: BoxFit.cover, width: 40, height: 40),
-            ),
+            title: ElevatedButton(onPressed: () => Navigator.pushNamed(context, "/user"),
+            style: ElevatedButton.styleFrom(shadowColor: background, backgroundColor: background), child: ClipRRect(
+    borderRadius: BorderRadius.circular(20),
+    child: Image.asset("assets/icon/drawer2.png",
+    fit: BoxFit.cover, width: 40, height: 40))),
             centerTitle: true,
           ),
           body: SingleChildScrollView(

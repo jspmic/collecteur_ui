@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'excel_fields.dart';
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 // Address definition
 String HOST = dotenv.env["HOST"].toString();
@@ -167,14 +168,16 @@ Future<List> getLivraison(String date, String? date2, String user) async {
   }
 }
 
-Future<bool> isUser(String _n_9032, String _n_9064) async {
+Future<bool> addUser(String _n_9032, String _n_9064) async {
   String code = dotenv.env["CODE"].toString();
+  String hashed = sha256.convert(utf8.encode(_n_9064)).toString();
   var url = Uri.parse("$HOST/api/list");
   try {
-    http.Response response = await http.get(url, headers: {
-      "x-api-key": code,
-      "Authorization": "$_n_9032:$_n_9064"
-    }).timeout(const Duration(seconds: 30), onTimeout: () {
+    http.Response response = await http.post(url, headers: {
+      "x-api-key": code
+    },
+	body: {"_n_9032": _n_9032,"_n_9064": hashed}
+	).timeout(const Duration(seconds: 30), onTimeout: () {
       return http.Response("No connection", 404);
     });
     if (response.statusCode == 200) {

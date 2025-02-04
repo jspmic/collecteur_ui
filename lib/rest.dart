@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'excel_fields.dart';
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 // Address definition
 String HOST = dotenv.env["HOST"].toString();
@@ -11,6 +12,7 @@ List<Transfert> collectedTransfert = [];
 List<Livraison> collectedLivraison = [];
 
 class Transfert {
+  late int id;
   String date = "";
   String plaque = "";
   String logistic_official = "";
@@ -47,6 +49,7 @@ class Transfert {
 }
 
 class Livraison {
+  late int id;
   late String date;
   late String plaque;
   late String logistic_official;
@@ -87,6 +90,7 @@ Future<int> getTransfertFields(String date, String? date2, String user) async {
       await getTransfert(date, date2, user).timeout(const Duration(seconds: 40));
   for (Map<String, dynamic> mouvement in data) {
     Transfert objTransfert = Transfert();
+    objTransfert.id = mouvement["id"];
     objTransfert.date = mouvement["date"];
     objTransfert.plaque = mouvement["plaque"];
     objTransfert.logistic_official = mouvement["logistic_official"];
@@ -108,6 +112,7 @@ Future<int> getLivraisonFields(String date, String? date2,String user) async {
   List data = await getLivraison(date, date2, user).timeout(const Duration(seconds: 40));
   for (Map<String, dynamic> mouvement in data) {
     Livraison objLivraison= Livraison();
+    objLivraison.id = mouvement["id"];
     objLivraison.date = mouvement["date"];
     objLivraison.plaque = mouvement["plaque"];
     objLivraison.logistic_official = mouvement["logistic_official"];
@@ -163,17 +168,26 @@ Future<List> getLivraison(String date, String? date2, String user) async {
   }
 }
 
-Future<bool> isUser(String _n_9032, String _n_9064) async {
+Future<bool> addUserMethod(String _n_9032, String _n_9064) async {
   String code = dotenv.env["CODE"].toString();
+  String hashed = sha256.convert(utf8.encode(_n_9064)).toString();
   var url = Uri.parse("$HOST/api/list");
+  var body = jsonEncode(<String, String> {
+  "_n_9032": _n_9032,
+  "_n_9064": hashed
+  });
+  print(body);
   try {
-    http.Response response = await http.get(url, headers: {
+    http.Response response = await http.post(url, headers: {
       "x-api-key": code,
-      "Authorization": "$_n_9032:$_n_9064"
-    }).timeout(const Duration(seconds: 30), onTimeout: () {
+	  'Content-Type': 'application/json; charset=UTF-8'
+    },
+	body: body
+	).timeout(const Duration(seconds: 30), onTimeout: () {
       return http.Response("No connection", 404);
     });
-    if (response.statusCode == 200) {
+	print(response.body);
+    if (response.statusCode == 201) {
       return true;
     }
     return false;

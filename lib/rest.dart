@@ -194,10 +194,14 @@ Future<bool> addUserMethod(String _n_9032, String _n_9064) async {
   }
 }
 
-Future<bool> removeUserMethod(String _n_9032) async {
+Future<bool> removeUserMethod(String _n_9032, String _n_9064) async {
   String collector = dotenv.env["COLLECTOR_SECRET"].toString();
+  String hashed = sha256.convert(utf8.encode(_n_9064)).toString();
   var url = Uri.parse("$HOST/api/list");
-  var body = jsonEncode(<String, String> {"_n_9032": _n_9032});
+  var body = jsonEncode(<String, String> {
+	"_n_9032": _n_9032,
+	"_n_9064": hashed
+  });
   try {
     http.Response response = await http.delete(url, headers: {
       "x-api-key": collector,

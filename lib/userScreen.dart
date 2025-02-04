@@ -70,7 +70,7 @@ class _InterfaceState extends State<Interface> {
 	isLoading2 = true;
 	state = Colors.blue;
   });
-  bool checkState = await removeUserMethod(username.text);
+  bool checkState = await removeUserMethod(username.text, pssw.text);
   setState(() {
 	isLoading2 = false;
 	state = checkState ? Colors.green : Colors.red;

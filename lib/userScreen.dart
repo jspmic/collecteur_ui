@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:collecteur/custom_widgets.dart';
-import 'package:collecteur/rest.dart';
+import 'package:Collecteur/rest.dart';
 
 class addUser extends StatefulWidget {
   const addUser({super.key});

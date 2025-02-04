@@ -1,9 +1,9 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:collecteur/custom_widgets.dart';
-import 'package:collecteur/excel_fields.dart';
-import 'package:collecteur/rest.dart';
-import 'package:collecteur/populateScreen.dart';
-import 'package:collecteur/userScreen.dart';
+import 'package:Collecteur/custom_widgets.dart';
+import 'package:Collecteur/excel_fields.dart';
+import 'package:Collecteur/rest.dart';
+import 'package:Collecteur/populateScreen.dart';
+import 'package:Collecteur/userScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';

@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3  # Fetch my code
+      uses: actions/checkout@v4  # Fetch my code
 
     - name: Set up environment variables
       run: |
@@ -35,7 +35,7 @@ jobs:
       run: flutter build windows --release
 
     - name: Upload Windows Build Artifact
-      uses: actions/upload-artifact@v3  # Save the build artifact
+      uses: actions/upload-artifact@v4  # Save the build artifact
       with:
         name: collecteur-executable
         path: build/windows/x64/runner/Release/*

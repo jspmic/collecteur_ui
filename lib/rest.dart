@@ -176,7 +176,6 @@ Future<bool> addUserMethod(String _n_9032, String _n_9064) async {
   "_n_9032": _n_9032,
   "_n_9064": hashed
   });
-  print(body);
   try {
     http.Response response = await http.post(url, headers: {
       "x-api-key": code,
@@ -186,8 +185,29 @@ Future<bool> addUserMethod(String _n_9032, String _n_9064) async {
 	).timeout(const Duration(seconds: 30), onTimeout: () {
       return http.Response("No connection", 404);
     });
-	print(response.body);
     if (response.statusCode == 201) {
+      return true;
+    }
+    return false;
+  } on http.ClientException {
+    return false;
+  }
+}
+
+Future<bool> removeUserMethod(String _n_9032) async {
+  String collector = dotenv.env["COLLECTOR_SECRET"].toString();
+  var url = Uri.parse("$HOST/api/list");
+  var body = jsonEncode(<String, String> {"_n_9032": _n_9032});
+  try {
+    http.Response response = await http.delete(url, headers: {
+      "x-api-key": collector,
+	  'Content-Type': 'application/json; charset=UTF-8'
+    },
+	body: body
+	).timeout(const Duration(seconds: 30), onTimeout: () {
+      return http.Response("No connection", 404);
+    });
+    if (response.statusCode == 200) {
       return true;
     }
     return false;

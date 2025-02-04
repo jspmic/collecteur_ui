@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:collecteur/excel_fields.dart';
-import 'package:collecteur/rest.dart';
+import 'package:Collecteur/excel_fields.dart';
+import 'package:Collecteur/rest.dart';
 
 Map<int, Iterable<String?>> cache = {};
 Map<String?, Iterable<String?>> cache2 = {};

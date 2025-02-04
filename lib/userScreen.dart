@@ -60,7 +60,6 @@ class _InterfaceState extends State<Interface> {
   }
 
   void removeGivenUser() async{
-	pssw.text = "remove_empty_field";
     if (_formKey.currentState!.validate()){
       _formKey.currentState?.save();
     }

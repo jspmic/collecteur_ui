@@ -29,6 +29,7 @@ class _InterfaceState extends State<Interface> {
   var pssw = TextEditingController();
   bool passwordVisible = false;
   bool isLoading = false;
+  bool isLoading2 = false;
   String _uname = "";
   String _pssw = "";
   Color? state = Colors.black;
@@ -54,6 +55,25 @@ class _InterfaceState extends State<Interface> {
   bool checkState = await addUserMethod(username.text, pssw.text);
   setState(() {
 	isLoading = false;
+	state = checkState ? Colors.green : Colors.red;
+  });
+  }
+
+  void removeGivenUser() async{
+	pssw.text = "remove_empty_field";
+    if (_formKey.currentState!.validate()){
+      _formKey.currentState?.save();
+    }
+    else{
+      return;
+    }
+  setState(() {
+	isLoading2 = true;
+	state = Colors.blue;
+  });
+  bool checkState = await removeUserMethod(username.text);
+  setState(() {
+	isLoading2 = false;
 	state = checkState ? Colors.green : Colors.red;
   });
   }
@@ -112,10 +132,19 @@ class _InterfaceState extends State<Interface> {
 			],
 		  ))),
 			const SizedBox(height: 12.0),
-			isLoading ? const CircularProgressIndicator()
-				: ElevatedButton(onPressed: addGivenUser,
-			  style: ElevatedButton.styleFrom(backgroundColor: Colors.lightGreen),
-			  child: const Icon(Icons.add))
+			Row(
+			mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+			children: [
+			  isLoading ? const CircularProgressIndicator()
+				  : ElevatedButton(onPressed: addGivenUser,
+				style: ElevatedButton.styleFrom(backgroundColor: Colors.lightGreen),
+				child: Icon(Icons.add, color: background)),
+
+			  isLoading2 ? const CircularProgressIndicator()
+				  : ElevatedButton(onPressed: removeGivenUser,
+				style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+				child: Icon(Icons.remove, color: background))
+				])
 	  ])),
   )));
   }

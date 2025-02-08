@@ -255,7 +255,8 @@ class _InterfaceState extends State<Interface> {
                         setState(() {
                           collectedTransfert = [];
                           collectedLivraison = [];
-						  program = "";
+						  modifiedTransferts = {};
+						  modifiedLivraisons = {};
                           stateColor = Colors.black;
                         });
                       },

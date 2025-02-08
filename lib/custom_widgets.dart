@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,48 @@ void initialize({String? district}) {
   }
   list(PROGRAM);
   list(DISTRICT);
+}
+
+Map<int, Map<String, dynamic>> modifiedLivraisons = {};
+Map<int, Map<String, dynamic>> modifiedTransferts = {};
+
+// These two functions save particular fields of a Livraison or Transfert
+void saveBoucle(int id, String boucleId, String columnName, String newValue){
+	Livraison? concernedLivraison;
+	for (var livraison in collectedLivraison){
+	  if (livraison.id == id) {
+		concernedLivraison = livraison;
+		break;
+	  }
+	}
+	// Just for safety since non-existent Livraisons can't be viewed nor changed
+	if (concernedLivraison == null){
+	  return;
+	}
+	// Making a copy of the `boucle` to not overwrite it by mistake
+	Map<String, dynamic> boucle = concernedLivraison.boucle;
+	boucle[boucleId][columnName] = newValue;
+	modifiedLivraisons[id] = {"boucle": boucle};
+	print(modifiedLivraisons);
+}
+
+// This function saves a certain movement to the new content
+void saveModified(String movement, int id, Map<String, String> content, {int? boucleId}){
+  if (movement == "Livraison"){
+	modifiedLivraisons.containsKey(id) ? modifiedLivraisons[id]!.addAll(content)
+	: modifiedLivraisons[id] = content;
+  }
+  else {
+	modifiedTransferts.containsKey(id) ? modifiedTransferts[id]!.addAll(content)
+	: modifiedTransferts[id] = content;
+  }
+}
+
+// Interface to the true modifier for easy and comprehensible arguments
+void saveChange(String movement, {required int id,
+				required String columnName, required String newValue}){
+  saveModified(movement, id, {columnName: newValue});
+  print(modifiedLivraisons);
 }
 
 // Custom DatePicker widget
@@ -176,28 +219,127 @@ List<DataRow> _createTransfertRows() {
     ]);
   }).toList();
 }
+Map<int, TextEditingController> dateControllers = {};
+Map<int, TextEditingController> logisticOfficialsControllers = {};
+Map<int, TextEditingController> numeroMvtControllers = {};
+Map<int, TextEditingController> plaqueControllers = {};
+Map<int, TextEditingController> stockDepartControllers = {};
+Map<int, TextEditingController> stockRetourControllers = {};
+Map<int, TextEditingController> typeTransportControllers = {};
+Map<int, TextEditingController> motifControllers = {};
+Map<int, TextEditingController> photoMvtControllers = {};
+Map<int, TextEditingController> photoJournalControllers = {};
+
+// Livraison-specific controllers
+Map<int, TextEditingController> districtControllers = {};
+// Each member of boucle has its own id(String)
+Map<String, TextEditingController> livraisonRetourControllers = {};
+Map<String, TextEditingController> collineControllers = {};
+Map<String, TextEditingController> inputControllers = {};
+Map<String, TextEditingController> quantiteControllers = {};
+
+Map<int, String> keys = {};
 
 List<DataRow> _createLivraisonRows() {
   List<Livraison> _data = List.from(collectedLivraison);
   List<DataRow> rows = [];
   _data.map((e){
+    dateControllers[e.id] = TextEditingController(text: e.date);
+    plaqueControllers[e.id] = TextEditingController(text: e.plaque);
+    logisticOfficialsControllers[e.id] = TextEditingController(text: e.logistic_official);
+    numeroMvtControllers[e.id] = TextEditingController(text: e.numero_mouvement.toString());
+    stockDepartControllers[e.id] = TextEditingController(text: formatStock(e.stock_central_depart));
+    districtControllers[e.id] = TextEditingController(text: e.district);
+    stockRetourControllers[e.id] = TextEditingController(text: formatStock(e.stock_central_retour));
+    typeTransportControllers[e.id] = TextEditingController(text: e.type_transport);
+    motifControllers[e.id] = TextEditingController(text: e.motif!);
+    photoMvtControllers[e.id] = TextEditingController(text: e.photo_mvt);
+    photoJournalControllers[e.id] = TextEditingController(text: e.photo_journal);
     for (String l in e.boucle.keys) {
+	  String key = "${e.id}-$l";
+	  keys[e.id] = key; // unique movement-boucle key for special controllers
+	  livraisonRetourControllers[key] = TextEditingController(text: e.boucle[l]!["livraison_retour"]);
+	  collineControllers[key] = TextEditingController(text: e.boucle[l]!["colline"]);
+	  inputControllers[key] = TextEditingController(text: e.boucle[l]!["input"]);
+	  quantiteControllers[key] = TextEditingController(text: e.boucle[l]!["quantite"]);
       DataRow row = DataRow(cells: [
-      DataCell(Text(e.date.toString())),
-          DataCell(Text(e.plaque.toString())),
-          DataCell(Text(e.logistic_official.toString())),
-          DataCell(Text(e.numero_mouvement.toString())),
-          DataCell(Text(formatStock(e.stock_central_depart.toString()))),
-          DataCell(Text(e.boucle[l]!["livraison_retour"].toString())),
-          DataCell(Text(e.district.toString())),
-		  DataCell(Text(e.boucle[l]!["colline"].toString())),
-		  DataCell(Text(e.boucle[l]!["input"].toString())),
-		  DataCell(Text(e.boucle[l]!["quantite"].toString())),
-          DataCell(Text(formatStock(e.stock_central_retour.toString()))),
-          DataCell(Text(e.type_transport.toString())),
-          DataCell(Text(e.motif.toString())),
-          DataCell(Text(e.photo_mvt.toString())),
-          DataCell(Text(e.photo_journal.toString()))
+        DataCell(TextField(controller: dateControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "date"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: plaqueControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "plaque"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: logisticOfficialsControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "logistic_official"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: numeroMvtControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "numero_mouvement"); }), showEditIcon: true),
+        DataCell(TextField(controller: stockDepartControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "stock_central_depart"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: livraisonRetourControllers[keys[e.id]],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) {
+			saveBoucle(e.id, l, "livraison_retour", value);
+		  }), showEditIcon: true),
+
+        DataCell(TextField(controller: districtControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "district"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: collineControllers[keys[e.id]],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) {
+			saveBoucle(e.id, l, "colline", value);
+		  }), showEditIcon: true),
+
+        DataCell(TextField(controller: inputControllers[keys[e.id]],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) {
+			saveBoucle(e.id, l, "input", value);
+		  }), showEditIcon: true),
+
+        DataCell(TextField(controller: quantiteControllers[keys[e.id]],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) {
+			saveBoucle(e.id, l, "quantite", value);
+		  }), showEditIcon: true),
+
+        DataCell(TextField(controller: stockRetourControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "stock_central_retour"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: typeTransportControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "type_transport"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: motifControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "motif"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: photoMvtControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "photo_mvt"); }), showEditIcon: true),
+
+        DataCell(TextField(controller: photoJournalControllers[e.id],
+		  decoration: const InputDecoration(border: InputBorder.none),
+		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
+		  columnName: "photo_journal"); }), showEditIcon: true),
     ]);
       rows.add(row);
     }

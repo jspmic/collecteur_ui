@@ -56,7 +56,6 @@ class Livraison {
   late int numero_mouvement;
   late String district;
   late String stock_central_depart;
-  //Map<String, Map<String, String>> boucle = {};
   Map<String, dynamic> boucle = {};
   late String stock_central_retour;
   String photo_mvt = "";
@@ -74,6 +73,7 @@ class Livraison {
         "District": district,
         "Numero du mouvement": numero_mouvement,
         "Stock Central Depart": stock_central_depart,
+        "Boucle": boucle,
         "Stock Central Retour": stock_central_retour,
         "Photo du mouvement": photo_mvt,
         "Photo du journal": photo_journal,

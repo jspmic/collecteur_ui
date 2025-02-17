@@ -11,7 +11,7 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xcel;
 
 void main() async{
   await dotenv.load(fileName: ".env");
-  initialize();
+  await list(PROGRAM);
   runApp(const Collecteur());
 }
 
@@ -26,7 +26,6 @@ class Collecteur extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    initialize();
     return MaterialApp(
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
@@ -55,6 +54,7 @@ class _InterfaceState extends State<Interface> {
   String program = "";
   bool isLoading = false;
   Color stateColor = Colors.black;
+  Color stateColor2 = Colors.black;
   String stock = "";
   var user = TextEditingController();
   List? data;
@@ -127,7 +127,7 @@ class _InterfaceState extends State<Interface> {
     DateFormat format = DateFormat("dd/MM/yyyy");
     for (var i = 0; i < collectedLivraison.length; i++) {
       for (String j in collectedLivraison[i].boucle.keys) {
-        var item = collectedLivraison[i];
+        Livraison item = collectedLivraison[i];
         DateTime dateTime = format.parse(item.date);
         sheet.getRangeByIndex(i + count, 1).setDateTime(dateTime);
         sheet.getRangeByIndex(i + count, 2).setText(item.plaque);
@@ -175,6 +175,23 @@ class _InterfaceState extends State<Interface> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  void modifyMovement() async{
+	  setState(() {
+		  stateColor2 = Colors.blue;
+	  });
+	  bool status = program == "Transfert" ? await modifyTransfert() : await modifyLivraison();
+	  if (status){
+		  setState(() {
+			stateColor2 = Colors.green;
+		  });
+	  }
+	  else{
+		  setState(() {
+			stateColor2 = Colors.red;
+		  });
+	  }
   }
 
   @override
@@ -237,20 +254,29 @@ class _InterfaceState extends State<Interface> {
                 children: [
                   isLoading
                       ? const CircularProgressIndicator()
-                      : ElevatedButton(
+                      : IconButton(
                           onPressed: () {
                             retrieve(program, beginDate!, endDate);
                           },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white),
-                          child: const Text("Générer",
-                              style: TextStyle(color: Colors.black))),
-                  ElevatedButton(
+						  icon: const Icon(Icons.import_export),
+						  tooltip: "Récupérer les données",
+						  color: Colors.black),
+                  IconButton(
                       onPressed: () => program == "Transfert" ? storeTransfert() : storeLivraison(),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                      child: Text("Conserver",
-                          style: TextStyle(color: stateColor))),
-                  ElevatedButton(
+                      icon: const Icon(Icons.download_for_offline),
+					  hoverColor: Colors.lightGreen,
+					  tooltip: "Exporter les données",
+					  color: stateColor),
+
+                  IconButton(
+                      onPressed: () => modifyMovement(),
+                      //style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+					  icon: const Icon(Icons.upload),
+					  hoverColor: Colors.blue,
+					  tooltip: "Appliquer les changements",
+					  color: stateColor2),
+
+                  IconButton(
                       onPressed: () {
                         setState(() {
                           collectedTransfert = [];
@@ -258,12 +284,13 @@ class _InterfaceState extends State<Interface> {
 						  modifiedTransferts = {};
 						  modifiedLivraisons = {};
                           stateColor = Colors.black;
+                          stateColor2 = Colors.black;
                         });
                       },
-                      style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                      child: const Text("Nettoyer",
-                          style: TextStyle(color: Colors.black))),
+                      icon: const Icon(Icons.clear_all_outlined),
+					  hoverColor: Colors.red,
+					  tooltip: "Vider le tableau",
+                      color: Colors.black)
                 ],
               )
             ]),

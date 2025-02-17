@@ -85,7 +85,7 @@ class _InterfaceState extends State<Interface> {
       sheet.getRangeByIndex(i + 2, 3).setText(item.logistic_official);
       sheet.getRangeByIndex(i + 2, 4).setNumber(item.numero_mouvement.toDouble());//.setText(item.numero_mouvement.toString());
       sheet.getRangeByIndex(i + 2, 5).setText(formatStock(item.stock_central_depart));
-      sheet.getRangeByIndex(i + 2, 6).setText(printStockSuivants(item));
+      sheet.getRangeByIndex(i + 2, 6).setText(stockSuivantsControllers[item.id.toString()]!.text);
       sheet.getRangeByIndex(i + 2, 7).setText(formatStock(item.stock_central_retour));
       sheet.getRangeByIndex(i + 2, 8).setText(item.type_transport);
       sheet.getRangeByIndex(i + 2, 9).setText(item.motif);

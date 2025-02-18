@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:Collecteur/excel_fields.dart';
@@ -39,17 +40,8 @@ Map<String, Map<String, dynamic>> modifiedTransferts = {};
 
 // These two functions save particular fields of a Livraison or Transfert
 void saveBoucle(String id, String boucleId, String columnName, String newValue){
-	Livraison? concernedLivraison;
-	for (var livraison in collectedLivraison){
-	  if (livraison.id.toString() == id) {
-		concernedLivraison = livraison;
-		break;
-	  }
-	}
-	// Just for safety since non-existent Livraisons can't be viewed nor changed
-	if (concernedLivraison == null){
-	  return;
-	}
+	Livraison concernedLivraison = collectedLivraison[id as int];
+
 	// Making a copy of the `boucle` to not overwrite it by mistake
 	Map<String, dynamic> boucle = concernedLivraison.boucle;
 	boucle[boucleId][columnName] = newValue;
@@ -216,6 +208,22 @@ TextEditingController printStockSuivants(Transfert objTransf){
   return stockSuivantsControllers[objTransf.id.toString()]!;
 }
 
+void saveStockSuivants(String id, String newValue){
+  List<String> stocks = newValue.split(' - ');
+  Map<String, String> newStockSuivants = {};
+  int count = 0;
+  for (String stock in stocks){
+	if (stock != ""){
+	  newStockSuivants[count.toString()] = stock.replaceAll(" ", "_");
+	}
+	count++;
+  }
+  modifiedTransferts.containsKey(id) ?
+  modifiedTransferts[id]!["stock_central_suivants"] = jsonEncode(newStockSuivants)
+  : modifiedTransferts[id] = {"stock_central_suivants": jsonEncode(newStockSuivants)};
+  print(modifiedTransferts);
+}
+
 List<DataRow> _createTransfertRows() {
   List<Transfert> data = List.from(collectedTransfert);
   return data.map((e) {
@@ -257,6 +265,7 @@ List<DataRow> _createTransfertRows() {
 		columnName: "stock_central_depart"); }), showEditIcon: true),
 
       DataCell(TextField(controller: stockSuivantsControllers[e.id.toString()],
+		onChanged: (value) {saveStockSuivants(e.id.toString(), value); },
 		decoration: const InputDecoration(border: InputBorder.none)), showEditIcon: true),
 
 	  DataCell(TextField(controller: stockRetourControllers[e.id],

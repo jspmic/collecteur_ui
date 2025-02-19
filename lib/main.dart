@@ -212,9 +212,9 @@ class _InterfaceState extends State<Interface> {
           appBar: AppBar(
             title: ElevatedButton(onPressed: () => Navigator.pushNamed(context, "/user"),
             style: ElevatedButton.styleFrom(shadowColor: background, backgroundColor: background), child: ClipRRect(
-    borderRadius: BorderRadius.circular(20),
-    child: Image.asset("assets/icon/drawer2.png",
-    fit: BoxFit.cover, width: 40, height: 40))),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset("assets/icon/drawer2.png",
+                        fit: BoxFit.cover, width: 40, height: 40))),
             centerTitle: true,
           ),
           body: SingleChildScrollView(
@@ -252,7 +252,9 @@ class _InterfaceState extends State<Interface> {
                         style: TextStyle(color: Colors.black))),
               ]),
               SizedBox(height: MediaQuery.of(context).size.height / 15),
-              program == "Transfert" ? transfertTable() : livraisonTable(),
+              program == "Transfert" ? transfertTable(date: formatDate(beginDate)!,
+                dateFin: formatDate(endDate)) : livraisonTable(date: formatDate(beginDate).toString(),
+                  dateFin: formatDate(endDate)),
               //: const Text("Pas de données", style: TextStyle(color: Colors.grey)),
               SizedBox(height: MediaQuery.of(context).size.height / 6),
               Row(
@@ -262,7 +264,10 @@ class _InterfaceState extends State<Interface> {
                       ? const CircularProgressIndicator()
                       : IconButton(
                           onPressed: () {
-                            retrieve(program, beginDate!, endDate);
+                            if (beginDate != null) {
+                              retrieve(program, beginDate!, endDate);
+                            }
+                            else{ return; }
                           },
 						  icon: const Icon(Icons.import_export),
 						  tooltip: "Récupérer les données",

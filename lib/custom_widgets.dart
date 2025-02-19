@@ -56,7 +56,6 @@ void saveBoucle(String id, String boucleId, String columnName, String newValue){
   modifiedLivraisons.containsKey(id) ?
       modifiedLivraisons[id]!.addAll({"boucle": jsonEncode(boucle)})
 	: modifiedLivraisons[id] = {"boucle": jsonEncode(boucle)};
-  print("Livraisons -> $modifiedLivraisons");
 }
 
 // This function saves a certain movement to the new content
@@ -75,6 +74,13 @@ void saveModified(String movement, String id, Map<String, String> content, {int?
 void saveChange(String movement, {required int id,
 				required String columnName, required String newValue}){
   saveModified(movement, id.toString(), {columnName: newValue});
+}
+
+String? formatDate(DateTime? _date){
+  if (_date == null){
+    return null;
+  }
+  return "${_date?.day} / ${_date?.month} / ${_date?.year}";
 }
 
 // Custom DatePicker widget
@@ -115,7 +121,7 @@ class _DatePickerState extends State<DatePicker> {
               child: Text(
                 _date == null
                     ? "${widget.placeHolder}..."
-                    : "${_date?.day} / ${_date?.month} / ${_date?.year}",
+                    : formatDate(_date)!,
                 style: TextStyle(
                     color: background == Colors.white
                         ? Colors.black
@@ -531,29 +537,55 @@ List<DataColumn> _createLivraisonColumns() {
   ];
 }
 
-Widget transfertTable() {
-  if (collectedTransfert.toString() == "[]"){
+Widget transfertTable({required String date, String? dateFin}) {
+  if (collectedTransfert.isEmpty){
     return const Center(child: Text("Pas de données", style: TextStyle(color: Colors.grey)));
   }
+  ScrollController _horizontalController = ScrollController();
+  String header = dateFin == null ?
+  "Transferts du $date" : "Transferts du $date au $dateFin"
+  ;
   return SafeArea(
-      child: PaginatedDataTable(columns: _createTransfertColumns(), source: TransfertData(),
-        header: const Center(child: Text("Transfert")),
+      child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Scrollbar(
+              controller: _horizontalController,
+              thumbVisibility: true,
+              child: PaginatedDataTable(
+                primary: false,
+                controller: _horizontalController,
+                showFirstLastButtons: true,
+                columns: _createTransfertColumns(), source: TransfertData(),
+                header: Center(child: Text(header)),
+                rowsPerPage: 10,
+              ))
       ));
 }
 
-Widget livraisonTable() {
-  if (collectedLivraison.toString() == "[]"){
+Widget livraisonTable({required String date, String? dateFin}) {
+  if (collectedLivraison.isEmpty){
     return const Center(child: Text("Pas de données", style: TextStyle(color: Colors.grey)));
   }
-  else {
-    return SafeArea(
-        child: PaginatedDataTable(
-          columns: _createLivraisonColumns(), source: LivraisonData(),
-          header: const Center(child: Text("Livraison")),
-          rowsPerPage: 10,
-        ));
+  ScrollController _horizontalController = ScrollController();
+  String header = dateFin == null ?
+  "Livraisons du $date" : "Livraisons du $date au $dateFin"
+  ;
+  return SafeArea(
+      child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Scrollbar(
+              controller: _horizontalController,
+              thumbVisibility: true,
+              child: PaginatedDataTable(
+                primary: false,
+                controller: _horizontalController,
+                showFirstLastButtons: true,
+                columns: _createLivraisonColumns(), source: LivraisonData(),
+                header: Center(child: Text(header)),
+                rowsPerPage: 10,
+              ))
+      ));
   }
-}
 
 Future<String> _getDst() async {
   final directory = await getApplicationDocumentsDirectory();

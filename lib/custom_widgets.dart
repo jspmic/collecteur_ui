@@ -35,17 +35,28 @@ void initialize({String? district}) {
   list(DISTRICT);
 }
 
-Map<String, Map<String, dynamic>> modifiedLivraisons = {};
-Map<String, Map<String, dynamic>> modifiedTransferts = {};
+Map<String, Map<String, String>> modifiedLivraisons = {};
+Map<String, Map<String, String>> modifiedTransferts = {};
 
 // These two functions save particular fields of a Livraison or Transfert
 void saveBoucle(String id, String boucleId, String columnName, String newValue){
-	Livraison concernedLivraison = collectedLivraison[id as int];
-
+	Livraison? concernedLivraison;
+  for (Livraison _concerned in collectedLivraison){
+    if (_concerned.id.toString() == id){
+      concernedLivraison = _concerned;
+      break;
+    }
+  }
+  if (concernedLivraison == null){
+    return;
+  }
 	// Making a copy of the `boucle` to not overwrite it by mistake
 	Map<String, dynamic> boucle = concernedLivraison.boucle;
 	boucle[boucleId][columnName] = newValue;
-	modifiedLivraisons[id] = {"boucle": jsonEncode(boucle)};
+  modifiedLivraisons.containsKey(id) ?
+      modifiedLivraisons[id]!.addAll({"boucle": jsonEncode(boucle)})
+	: modifiedLivraisons[id] = {"boucle": jsonEncode(boucle)};
+  print("Livraisons -> $modifiedLivraisons");
 }
 
 // This function saves a certain movement to the new content
@@ -303,6 +314,34 @@ Map<String, TextEditingController> quantiteControllers = {};
 
 Map<int, String> keys = {};
 
+class LivraisonData extends DataTableSource{
+  List<DataRow> livraisonRows = _createLivraisonRows();
+  @override
+  DataRow? getRow(int index) {
+    return livraisonRows[index];
+  }
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => livraisonRows.length;
+  @override
+  int get selectedRowCount => 0;
+}
+
+class TransfertData extends DataTableSource{
+  List<DataRow> transfertRows = _createTransfertRows();
+  @override
+  DataRow? getRow(int index) {
+    return transfertRows[index];
+  }
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => transfertRows.length;
+  @override
+  int get selectedRowCount => 0;
+}
+
 List<DataRow> _createLivraisonRows() {
   List<Livraison> _data = List.from(collectedLivraison);
   List<DataRow> rows = [];
@@ -493,34 +532,27 @@ List<DataColumn> _createLivraisonColumns() {
 }
 
 Widget transfertTable() {
-  final ScrollController horizontalController = ScrollController();
+  if (collectedTransfert.toString() == "[]"){
+    return const Center(child: Text("Pas de données", style: TextStyle(color: Colors.grey)));
+  }
   return SafeArea(
-      child: Scrollbar(
-	  controller: horizontalController,
-	  thumbVisibility: true,
-	  child: SingleChildScrollView(
-		controller: horizontalController,
-		scrollDirection: Axis.horizontal,
-		child: SingleChildScrollView(
-		scrollDirection: Axis.vertical,
-		child: DataTable(
-			columns: _createTransfertColumns(), rows: _createTransfertRows())),
-  )));
+      child: PaginatedDataTable(columns: _createTransfertColumns(), source: TransfertData(),
+        header: const Center(child: Text("Transfert")),
+      ));
 }
 
 Widget livraisonTable() {
-  final ScrollController horizontalController = ScrollController();
-  return SafeArea(
-	  child: Scrollbar(
-		controller: horizontalController,
-		thumbVisibility: true,
-        child: SingleChildScrollView(
-		controller: horizontalController,
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-              columns: _createLivraisonColumns(), rows: _createLivraisonRows())),
-        ),
-      );
+  if (collectedLivraison.toString() == "[]"){
+    return const Center(child: Text("Pas de données", style: TextStyle(color: Colors.grey)));
+  }
+  else {
+    return SafeArea(
+        child: PaginatedDataTable(
+          columns: _createLivraisonColumns(), source: LivraisonData(),
+          header: const Center(child: Text("Livraison")),
+          rowsPerPage: 10,
+        ));
+  }
 }
 
 Future<String> _getDst() async {

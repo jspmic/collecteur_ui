@@ -139,8 +139,14 @@ class _InterfaceState extends State<Interface> {
         sheet.getRangeByIndex(i + count, 7).setText(item.district);
         sheet.getRangeByIndex(i + count, 8).setText(item.boucle[j]!["colline"]);
         sheet.getRangeByIndex(i + count, 9).setText(item.boucle[j]!["input"]);
-        sheet.getRangeByIndex(i + count, 10).setNumber(item.boucle[j]!["quantite"] != null ? double.parse(item.boucle[j]!["quantite"])
-		: 0);
+        String? quantite = item.boucle[j]!["quantite"];
+        try {
+          sheet.getRangeByIndex(i + count, 10).setNumber(
+              quantite != null ? double.parse(quantite) : 0.0);
+        }
+        on FormatException {
+          sheet.getRangeByIndex(i + count, 10).setNumber(0.0);
+        }
         sheet.getRangeByIndex(i + count, 11).setText(formatStock(item.stock_central_retour));
         sheet.getRangeByIndex(i + count, 12).setText(item.type_transport);
         sheet.getRangeByIndex(i + count, 13).setText(item.motif);
@@ -246,8 +252,8 @@ class _InterfaceState extends State<Interface> {
                         style: TextStyle(color: Colors.black))),
               ]),
               SizedBox(height: MediaQuery.of(context).size.height / 15),
-              program != "" ? program == "Transfert" ? transfertTable() : livraisonTable()
-              : const Text("Pas de données", style: TextStyle(color: Colors.grey)),
+              program == "Transfert" ? transfertTable() : livraisonTable(),
+              //: const Text("Pas de données", style: TextStyle(color: Colors.grey)),
               SizedBox(height: MediaQuery.of(context).size.height / 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -264,32 +270,31 @@ class _InterfaceState extends State<Interface> {
                   IconButton(
                       onPressed: () => program == "Transfert" ? storeTransfert() : storeLivraison(),
                       icon: const Icon(Icons.download_for_offline),
-					  hoverColor: Colors.lightGreen,
-					  tooltip: "Exporter les données",
-					  color: stateColor),
-
+                      hoverColor: Colors.lightGreen,
+                      tooltip: "Exporter les données",
+                      color: stateColor),
                   IconButton(
                       onPressed: () => modifyMovement(),
                       //style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-					  icon: const Icon(Icons.upload),
-					  hoverColor: Colors.blue,
-					  tooltip: "Appliquer les changements",
-					  color: stateColor2),
+                      icon: const Icon(Icons.upload),
+                      hoverColor: Colors.blue,
+                      tooltip: "Appliquer les changements",
+                      color: stateColor2),
 
                   IconButton(
                       onPressed: () {
                         setState(() {
                           collectedTransfert = [];
                           collectedLivraison = [];
-						  modifiedTransferts = {};
-						  modifiedLivraisons = {};
+                          modifiedTransferts = {};
+                          modifiedLivraisons = {};
                           stateColor = Colors.black;
                           stateColor2 = Colors.black;
                         });
                       },
                       icon: const Icon(Icons.clear_all_outlined),
-					  hoverColor: Colors.red,
-					  tooltip: "Vider le tableau",
+                      hoverColor: Colors.red,
+                      tooltip: "Vider le tableau",
                       color: Colors.black)
                 ],
               )

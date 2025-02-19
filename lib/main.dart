@@ -11,7 +11,7 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xcel;
 
 void main() async{
   await dotenv.load(fileName: ".env");
-  initialize();
+  await list(PROGRAM);
   runApp(const Collecteur());
 }
 
@@ -26,7 +26,6 @@ class Collecteur extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    initialize();
     return MaterialApp(
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
@@ -55,6 +54,7 @@ class _InterfaceState extends State<Interface> {
   String program = "";
   bool isLoading = false;
   Color stateColor = Colors.black;
+  Color stateColor2 = Colors.black;
   String stock = "";
   var user = TextEditingController();
   List? data;
@@ -85,7 +85,7 @@ class _InterfaceState extends State<Interface> {
       sheet.getRangeByIndex(i + 2, 3).setText(item.logistic_official);
       sheet.getRangeByIndex(i + 2, 4).setNumber(item.numero_mouvement.toDouble());//.setText(item.numero_mouvement.toString());
       sheet.getRangeByIndex(i + 2, 5).setText(formatStock(item.stock_central_depart));
-      sheet.getRangeByIndex(i + 2, 6).setText(printStockSuivants(item));
+      sheet.getRangeByIndex(i + 2, 6).setText(stockSuivantsControllers[item.id.toString()]!.text);
       sheet.getRangeByIndex(i + 2, 7).setText(formatStock(item.stock_central_retour));
       sheet.getRangeByIndex(i + 2, 8).setText(item.type_transport);
       sheet.getRangeByIndex(i + 2, 9).setText(item.motif);
@@ -127,7 +127,7 @@ class _InterfaceState extends State<Interface> {
     DateFormat format = DateFormat("dd/MM/yyyy");
     for (var i = 0; i < collectedLivraison.length; i++) {
       for (String j in collectedLivraison[i].boucle.keys) {
-        var item = collectedLivraison[i];
+        Livraison item = collectedLivraison[i];
         DateTime dateTime = format.parse(item.date);
         sheet.getRangeByIndex(i + count, 1).setDateTime(dateTime);
         sheet.getRangeByIndex(i + count, 2).setText(item.plaque);
@@ -139,8 +139,14 @@ class _InterfaceState extends State<Interface> {
         sheet.getRangeByIndex(i + count, 7).setText(item.district);
         sheet.getRangeByIndex(i + count, 8).setText(item.boucle[j]!["colline"]);
         sheet.getRangeByIndex(i + count, 9).setText(item.boucle[j]!["input"]);
-        sheet.getRangeByIndex(i + count, 10).setNumber(item.boucle[j]!["quantite"] != null ? double.parse(item.boucle[j]!["quantite"])
-		: 0);
+        String? quantite = item.boucle[j]!["quantite"];
+        try {
+          sheet.getRangeByIndex(i + count, 10).setNumber(
+              quantite != null ? double.parse(quantite) : 0.0);
+        }
+        on FormatException {
+          sheet.getRangeByIndex(i + count, 10).setNumber(0.0);
+        }
         sheet.getRangeByIndex(i + count, 11).setText(formatStock(item.stock_central_retour));
         sheet.getRangeByIndex(i + count, 12).setText(item.type_transport);
         sheet.getRangeByIndex(i + count, 13).setText(item.motif);
@@ -175,6 +181,23 @@ class _InterfaceState extends State<Interface> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  void modifyMovement() async{
+	  setState(() {
+		  stateColor2 = Colors.blue;
+	  });
+	  bool status = program == "Transfert" ? await modifyTransfert() : await modifyLivraison();
+	  if (status){
+		  setState(() {
+			stateColor2 = Colors.green;
+		  });
+	  }
+	  else{
+		  setState(() {
+			stateColor2 = Colors.red;
+		  });
+	  }
   }
 
   @override
@@ -229,40 +252,50 @@ class _InterfaceState extends State<Interface> {
                         style: TextStyle(color: Colors.black))),
               ]),
               SizedBox(height: MediaQuery.of(context).size.height / 15),
-              program != "" ? program == "Transfert" ? transfertTable() : livraisonTable()
-              : const Text("Pas de données", style: TextStyle(color: Colors.grey)),
+              program == "Transfert" ? transfertTable() : livraisonTable(),
+              //: const Text("Pas de données", style: TextStyle(color: Colors.grey)),
               SizedBox(height: MediaQuery.of(context).size.height / 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   isLoading
                       ? const CircularProgressIndicator()
-                      : ElevatedButton(
+                      : IconButton(
                           onPressed: () {
                             retrieve(program, beginDate!, endDate);
                           },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white),
-                          child: const Text("Générer",
-                              style: TextStyle(color: Colors.black))),
-                  ElevatedButton(
+						  icon: const Icon(Icons.import_export),
+						  tooltip: "Récupérer les données",
+						  color: Colors.black),
+                  IconButton(
                       onPressed: () => program == "Transfert" ? storeTransfert() : storeLivraison(),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                      child: Text("Conserver",
-                          style: TextStyle(color: stateColor))),
-                  ElevatedButton(
+                      icon: const Icon(Icons.download_for_offline),
+                      hoverColor: Colors.lightGreen,
+                      tooltip: "Exporter les données",
+                      color: stateColor),
+                  IconButton(
+                      onPressed: () => modifyMovement(),
+                      //style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                      icon: const Icon(Icons.upload),
+                      hoverColor: Colors.blue,
+                      tooltip: "Appliquer les changements",
+                      color: stateColor2),
+
+                  IconButton(
                       onPressed: () {
                         setState(() {
                           collectedTransfert = [];
                           collectedLivraison = [];
-						  program = "";
+                          modifiedTransferts = {};
+                          modifiedLivraisons = {};
                           stateColor = Colors.black;
+                          stateColor2 = Colors.black;
                         });
                       },
-                      style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                      child: const Text("Nettoyer",
-                          style: TextStyle(color: Colors.black))),
+                      icon: const Icon(Icons.clear_all_outlined),
+                      hoverColor: Colors.red,
+                      tooltip: "Vider le tableau",
+                      color: Colors.black)
                 ],
               )
             ]),

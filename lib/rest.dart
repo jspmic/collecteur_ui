@@ -1,3 +1,4 @@
+import 'package:Collecteur/custom_widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'excel_fields.dart';
@@ -56,7 +57,6 @@ class Livraison {
   late int numero_mouvement;
   late String district;
   late String stock_central_depart;
-  //Map<String, Map<String, String>> boucle = {};
   Map<String, dynamic> boucle = {};
   late String stock_central_retour;
   String photo_mvt = "";
@@ -74,6 +74,7 @@ class Livraison {
         "District": district,
         "Numero du mouvement": numero_mouvement,
         "Stock Central Depart": stock_central_depart,
+        "Boucle": boucle,
         "Stock Central Retour": stock_central_retour,
         "Photo du mouvement": photo_mvt,
         "Photo du journal": photo_journal,
@@ -130,11 +131,11 @@ Future<int> getLivraisonFields(String date, String? date2,String user) async {
   return 0;
 }
 
-// GET methods session
+// GET methods section
 
 Future<List> getTransfert(String date, String? date2, String user) async {
   var url = Uri.parse(date2 != null ? "$HOST/api/transferts?date=$date&date2=$date2&user=$user" :
-  "$HOST/api/livraisons?date=$date&user=$user");
+  "$HOST/api/transferts?date=$date&user=$user");
   try {
     http.Response response = await http.get(url);
     var decoded = [];
@@ -165,6 +166,63 @@ Future<List> getLivraison(String date, String? date2, String user) async {
     return decoded;
   } on http.ClientException {
     return [];
+  }
+}
+
+
+// PATCH methods section
+
+Future<bool> modifyLivraison() async {
+  String collector = dotenv.env["COLLECTOR_SECRET"].toString();
+  var url = Uri.parse("$HOST/api/livraisons");
+  String body;
+  try{
+	  body = jsonEncode(modifiedLivraisons);
+  } on Exception{
+	  return false;
+  }
+  try {
+    http.Response response = await http.patch(url, headers: {
+      "x-api-key": collector,
+	  'Content-Type': 'application/json; charset=UTF-8'
+    },
+	body: body
+	).timeout(const Duration(minutes: 2), onTimeout: () {
+      return http.Response("No connection", 404);
+    });
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
+  } on http.ClientException {
+    return false;
+  }
+}
+
+Future<bool> modifyTransfert() async {
+  String collector = dotenv.env["COLLECTOR_SECRET"].toString();
+  var url = Uri.parse("$HOST/api/transferts");
+  String body;
+  try{
+	  body = jsonEncode(modifiedTransferts);
+  } on Exception{
+	  return false;
+  }
+  try {
+    http.Response response = await http.patch(url, headers: {
+      "x-api-key": collector,
+	  'Content-Type': 'application/json; charset=UTF-8'
+    },
+	body: body
+	).timeout(const Duration(minutes: 2), onTimeout: () {
+      return http.Response("No connection", 404);
+    });
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
+  } on http.ClientException {
+    return false;
   }
 }
 

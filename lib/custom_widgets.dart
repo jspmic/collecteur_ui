@@ -64,7 +64,6 @@ void saveModified(String movement, String id, Map<String, String> content, {int?
 void saveChange(String movement, {required int id,
 				required String columnName, required String newValue}){
   saveModified(movement, id.toString(), {columnName: newValue});
-  print("Transfert -> $modifiedTransferts");
 }
 
 // Custom DatePicker widget
@@ -221,7 +220,6 @@ void saveStockSuivants(String id, String newValue){
   modifiedTransferts.containsKey(id) ?
   modifiedTransferts[id]!["stock_central_suivants"] = jsonEncode(newStockSuivants)
   : modifiedTransferts[id] = {"stock_central_suivants": jsonEncode(newStockSuivants)};
-  print(modifiedTransferts);
 }
 
 List<DataRow> _createTransfertRows() {
@@ -237,7 +235,6 @@ List<DataRow> _createTransfertRows() {
     motifControllers[e.id] = TextEditingController(text: e.motif!);
     photoMvtControllers[e.id] = TextEditingController(text: e.photo_mvt);
     photoJournalControllers[e.id] = TextEditingController(text: e.photo_journal);
-	printStockSuivants(e);
     return DataRow(cells: [
 	  DataCell(TextField(controller: dateControllers[e.id],
 		decoration: const InputDecoration(border: InputBorder.none),

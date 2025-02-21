@@ -252,6 +252,7 @@ List<DataRow> _createTransfertRows() {
     motifControllers[e.id] = TextEditingController(text: e.motif!);
     photoMvtControllers[e.id] = TextEditingController(text: e.photo_mvt);
     photoJournalControllers[e.id] = TextEditingController(text: e.photo_journal);
+	printStockSuivants(e);
     return DataRow(cells: [
 	  DataCell(TextField(controller: dateControllers[e.id],
 		decoration: const InputDecoration(border: InputBorder.none),

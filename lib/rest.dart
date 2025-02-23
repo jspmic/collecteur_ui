@@ -252,6 +252,35 @@ Future<bool> addUserMethod(String _n_9032, String _n_9064) async {
   }
 }
 
+// DELETE methods section
+
+Future<bool> removeMovement(String program, int id, int index) async {
+  // index is the index of the movement in the list
+  // it will be used to remove the movement from the list, and potentially
+  // remove the need to reload each time a movement is removed
+  // which will reduce the use of bandwidth exponentially and save some CPU power
+
+  String collector = dotenv.env["COLLECTOR_SECRET"].toString();
+  var url = Uri.parse(program == "Transfert" ? "$HOST/api/transferts?id=$id"
+	: "$HOST/api/livraisons?id=$id"
+  );
+  try {
+    http.Response response = await http.delete(url, headers: {
+      "x-api-key": collector,
+	  'Content-Type': 'application/json; charset=UTF-8'
+    }
+	).timeout(const Duration(minutes: 2), onTimeout: () {
+      return http.Response("No connection", 404);
+    });
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
+  } on http.ClientException {
+    return false;
+  }
+}
+
 Future<bool> removeUserMethod(String _n_9032, String _n_9064) async {
   String collector = dotenv.env["COLLECTOR_SECRET"].toString();
   String hashed = sha256.convert(utf8.encode(_n_9064)).toString();
@@ -277,6 +306,17 @@ Future<bool> removeUserMethod(String _n_9032, String _n_9064) async {
     return false;
   }
 }
+
+Future<bool> deleteCollines(String code) async{
+	var url = Uri.parse("$HOST/api/colline");
+	http.Response response;
+	response = await http.delete(url, headers: {
+	  "x-api-key": code,
+	  'Content-Type': 'application/json; charset=UTF-8'});
+	return response.statusCode == 200;
+}
+
+// POST methods section
 
 Future<bool> populate(Worksheet workSheet, String code) async {
   List<String?> districts = workSheet.readColumn("Feuille 1", DISTRICT);
@@ -334,12 +374,3 @@ Future<bool> populateCollines(Worksheet workSheet, String code) async {
       return false;
     }
   }
-
-Future<bool> deleteCollines(String code) async{
-	var url = Uri.parse("$HOST/api/colline");
-	http.Response response;
-	response = await http.delete(url, headers: {
-	  "x-api-key": code,
-	  'Content-Type': 'application/json; charset=UTF-8'});
-	return response.statusCode == 200;
-}

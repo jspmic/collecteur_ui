@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:Collecteur/excel_fields.dart';
 import 'package:Collecteur/rest.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Map<int, Iterable<String?>> cache = {};
 Map<String?, Iterable<String?>> cache2 = {};
@@ -196,6 +197,60 @@ class _StockState extends State<Stock> {
   }
 }
 
+
+
+// DELETE methods interface
+
+class dialogAlertWidget extends StatefulWidget {
+  final String program;
+  final int id;
+  final int index;
+  const dialogAlertWidget({super.key, required this.program, required this.id, required this.index});
+
+  @override
+  State<dialogAlertWidget> createState() => _dialogAlertWidgetState();
+}
+
+class _dialogAlertWidgetState extends State<dialogAlertWidget> {
+  bool isLoading = false;
+  Color status = Colors.red;
+
+  void deleteMovement() async {
+    setState(() {
+      isLoading = true;
+    });
+    bool codeStatus = await removeMovement(widget.program, widget.id, widget.index);
+    if (codeStatus){
+      status = Colors.green;
+    }
+    else {
+      status = Colors.red;
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Attention!"),
+      content: const Text("Êtes-vous sûr de vouloir supprimer ce mouvement?"),
+      actions: [
+        isLoading ? const CircularProgressIndicator() :
+        ElevatedButton(onPressed: () {
+          deleteMovement();
+        }, child: Text("Accepter", style: TextStyle(color: status))),
+        ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("Fermer"))
+      ],
+    );
+  }
+}
+
+void popUp(String program, int id, int index){
+  showDialog(context: navigatorKey.currentContext!, builder: (context) => dialogAlertWidget(program: program, id: id, index: index));
+}
+
 // Global controllers for Livraison and Transfert
 Map<int, TextEditingController> dateControllers = {};
 Map<int, TextEditingController> logisticOfficialsControllers = {};
@@ -252,8 +307,9 @@ List<DataRow> _createTransfertRows() {
     motifControllers[e.id] = TextEditingController(text: e.motif!);
     photoMvtControllers[e.id] = TextEditingController(text: e.photo_mvt);
     photoJournalControllers[e.id] = TextEditingController(text: e.photo_journal);
-	printStockSuivants(e);
+    printStockSuivants(e);
     return DataRow(cells: [
+	  DataCell(IconButton(icon: const Icon(Icons.remove, color: Colors.red), onPressed: () => popUp("Transfert", e.id, data.indexOf(e)))),
 	  DataCell(TextField(controller: dateControllers[e.id],
 		decoration: const InputDecoration(border: InputBorder.none),
 		onChanged: (value) { saveChange("Transfert", id: e.id, newValue: value,
@@ -372,6 +428,7 @@ List<DataRow> _createLivraisonRows() {
 	  inputControllers[key] = TextEditingController(text: e.boucle[l]!["input"]);
 	  quantiteControllers[key] = TextEditingController(text: e.boucle[l]!["quantite"]);
       DataRow row = DataRow(cells: [
+        DataCell(IconButton(icon: const Icon(Icons.remove, color: Colors.red), onPressed: () => popUp("Livraison", e.id, _data.indexOf(e)))),
         DataCell(TextField(controller: dateControllers[e.id],
 		  decoration: const InputDecoration(border: InputBorder.none),
 		  onChanged: (value) { saveChange("Livraison", id: e.id, newValue: value,
@@ -459,6 +516,8 @@ List<DataRow> _createLivraisonRows() {
 List<DataColumn> _createTransfertColumns() {
   return [
     const DataColumn(
+        label: Text("", style: TextStyle(fontWeight: FontWeight.bold))),
+    const DataColumn(
         label: Text("Date", style: TextStyle(fontWeight: FontWeight.bold))),
     const DataColumn(
         label: Text("Plaque", style: TextStyle(fontWeight: FontWeight.bold))),
@@ -493,6 +552,8 @@ List<DataColumn> _createTransfertColumns() {
 
 List<DataColumn> _createLivraisonColumns() {
   return [
+    const DataColumn(
+        label: Text("", style: TextStyle(fontWeight: FontWeight.bold))),
     const DataColumn(
         label: Text("Date", style: TextStyle(fontWeight: FontWeight.bold))),
     const DataColumn(
@@ -558,7 +619,7 @@ Widget transfertTable({required String date, String? dateFin}) {
                 showFirstLastButtons: true,
                 columns: _createTransfertColumns(), source: TransfertData(),
                 header: Center(child: Text(header)),
-                rowsPerPage: 10,
+                rowsPerPage: 20,
               ))
       ));
 }
@@ -583,7 +644,7 @@ Widget livraisonTable({required String date, String? dateFin}) {
                 showFirstLastButtons: true,
                 columns: _createLivraisonColumns(), source: LivraisonData(),
                 header: Center(child: Text(header)),
-                rowsPerPage: 10,
+                rowsPerPage: 20,
               ))
       ));
   }
